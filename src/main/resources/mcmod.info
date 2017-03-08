@@ -1,0 +1,16 @@
+[
+{
+  "modid": "cc3dprojector",
+  "name": "CC3DProjector",
+  "description": "Adds a 3D projector peripheral for ComputerCraft.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://github.com/Iunius118/CC3DProjector",
+  "updateUrl": "",
+  "authorList": ["Iunius"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
