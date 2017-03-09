@@ -1,0 +1,10 @@
+
+{
+    "parent": "block/cube_bottom_top",
+    "textures": {
+        "top"   : "cc3dprojector:blocks/3dprojector_top_on",
+        "side"  : "cc3dprojector:blocks/3dprojector_side",
+        "bottom": "cc3dprojector:blocks/3dprojector_bottom"
+
+    }
+}

@@ -12,12 +12,40 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import dan200.computercraft.api.turtle.TurtleVerb;
 import iunius118.mods.cc3dprojector.CC3DProjector;
+import iunius118.mods.cc3dprojector.peripheral.Peripheral3DProjector;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class Turtle3DProjector implements ITurtleUpgrade {
+
+	public static final String TAG_IS_ON = "isOn";
+
+	@SideOnly(Side.CLIENT)
+	private ModelResourceLocation modelLeftOff;
+	@SideOnly(Side.CLIENT)
+	private ModelResourceLocation modelLeftOn;
+	@SideOnly(Side.CLIENT)
+	private ModelResourceLocation modelRightOff;
+	@SideOnly(Side.CLIENT)
+	private ModelResourceLocation modelRightOn;
+
+	public Turtle3DProjector() {
+		if (FMLCommonHandler.instance().getSide().isClient()) {
+			modelLeftOff  = new ModelResourceLocation(new ResourceLocation(CC3DProjector.MOD_ID, "upgrade/3dprojector_left_off"), "inventory");
+			modelLeftOn  = new ModelResourceLocation(new ResourceLocation(CC3DProjector.MOD_ID, "upgrade/3dprojector_left_on"), "inventory");
+			modelRightOff = new ModelResourceLocation(new ResourceLocation(CC3DProjector.MOD_ID, "upgrade/3dprojector_right_off"), "inventory");
+			modelRightOn = new ModelResourceLocation(new ResourceLocation(CC3DProjector.MOD_ID, "upgrade/3dprojector_right_on"), "inventory");
+		}
+	}
 
 	@Override
 	public ResourceLocation getUpgradeID() {
@@ -46,7 +74,7 @@ public class Turtle3DProjector implements ITurtleUpgrade {
 
 	@Override
 	public IPeripheral createPeripheral(ITurtleAccess turtle, TurtleSide side) {
-		return null;
+		return new Peripheral3DProjector(turtle, side);
 	}
 
 	@Override
@@ -55,10 +83,26 @@ public class Turtle3DProjector implements ITurtleUpgrade {
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public Pair<IBakedModel, Matrix4f> getModel(ITurtleAccess turtle, TurtleSide side) {
-		return null;
-	}
+		Minecraft mc = Minecraft.getMinecraft();
+		ModelManager modelManager = mc.getRenderItem().getItemModelMesher().getModelManager();
+		NBTTagCompound tag = (turtle != null) ? turtle.getUpgradeNBTData(side) : null;
 
+		if (tag != null && turtle.getUpgradeNBTData(side).getBoolean(Turtle3DProjector.TAG_IS_ON)) {
+			if (side == TurtleSide.Left) {
+				return Pair.of(modelManager.getModel(modelLeftOn), null);
+			} else {
+				return Pair.of(modelManager.getModel(modelRightOn), null);
+			}
+		} else {
+			if (side == TurtleSide.Left) {
+				return Pair.of(modelManager.getModel(modelLeftOff), null);
+			} else {
+				return Pair.of(modelManager.getModel(modelRightOff), null);
+			}
+		}
+	}
 	@Override
 	public void update(ITurtleAccess turtle, TurtleSide side) {
 

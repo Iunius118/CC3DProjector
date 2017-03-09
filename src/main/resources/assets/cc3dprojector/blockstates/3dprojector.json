@@ -1,0 +1,7 @@
+
+{
+    "variants": {
+        "ison=false":   { "model": "cc3dprojector:3dprojector_off" },
+        "ison=true" :   { "model": "cc3dprojector:3dprojector_on" }
+    }
+}

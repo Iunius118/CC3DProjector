@@ -6,6 +6,7 @@ import com.google.common.base.Function;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import iunius118.mods.cc3dprojector.block.Block3DProjector;
+import iunius118.mods.cc3dprojector.client.renderer.RendererTileEntity3DProjector;
 import iunius118.mods.cc3dprojector.peripheral.PeripheralProvider;
 import iunius118.mods.cc3dprojector.tileentity.TileEntity3DProjector;
 import iunius118.mods.cc3dprojector.upgrade.Turtle3DProjector;
@@ -22,6 +23,7 @@ import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -38,7 +40,7 @@ public class CC3DProjector {
 
 	public static final String MOD_ID = "cc3dprojector";
 	public static final String MOD_NAME = "CC3DProjector";
-	public static final String MOD_VERSION = "0.0.1";
+	public static final String MOD_VERSION = "%modVersion%";
 	public static final String MOD_DEPENDENCIES = "after:ComputerCraft";
 
 	public static Block block3DProjector;
@@ -55,25 +57,24 @@ public class CC3DProjector {
 
 		if (event.getSide().isClient()) {
 			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block3DProjector), 0, new ModelResourceLocation(MOD_ID + ":" + NAME_BLOCK_3D_PROJECTOR, "inventory"));
+			ClientRegistry.bindTileEntitySpecialRenderer(TileEntity3DProjector.class, new RendererTileEntity3DProjector());
 			MinecraftForge.EVENT_BUS.register(this);
 		}
 	}
 
 	@SubscribeEvent
 	public void onTextureStitchEvent(TextureStitchEvent.Pre event) {
-		event.map.registerSprite(new ResourceLocation(this.MOD_ID, "upgrade/3dprojector_side"));
-		event.map.registerSprite(new ResourceLocation(this.MOD_ID, "upgrade/3dprojector_top"));
+		event.map.registerSprite(new ResourceLocation(this.MOD_ID, "upgrades/3dprojector_side"));
+		event.map.registerSprite(new ResourceLocation(this.MOD_ID, "upgrades/3dprojector_top_off"));
+		event.map.registerSprite(new ResourceLocation(this.MOD_ID, "upgrades/3dprojector_top_on"));
 	}
 
 	@SubscribeEvent
 	public void onModelBakeEvent(ModelBakeEvent event) {
-		ResourceLocation modelLeft  = new ResourceLocation(this.MOD_ID, "upgrade/3dprojector_left");
-		ResourceLocation modelRight = new ResourceLocation(this.MOD_ID, "upgrade/3dprojector_right");
-		ResourceLocation modeltop = new ResourceLocation(this.MOD_ID, "upgrade/3dprojector_top");
-
-		loadModel(event, modelLeft);
-		loadModel(event, modelRight);
-		loadModel(event, modeltop);
+		loadModel(event, new ResourceLocation(this.MOD_ID, "upgrade/3dprojector_left_off"));
+		loadModel(event, new ResourceLocation(this.MOD_ID, "upgrade/3dprojector_left_on"));
+		loadModel(event, new ResourceLocation(this.MOD_ID, "upgrade/3dprojector_right_off"));
+		loadModel(event, new ResourceLocation(this.MOD_ID, "upgrade/3dprojector_right_on"));
 	}
 
 	private void loadModel(ModelBakeEvent event, ResourceLocation location) {
