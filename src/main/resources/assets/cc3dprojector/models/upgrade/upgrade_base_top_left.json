@@ -19,7 +19,7 @@
             "from": [ 4, 14, 3.5 ],
             "to": [ 12, 15, 11.5 ],
             "faces": {
-                "up":    { "uv": [ 2, 2, 14, 14 ], "texture": "#top" },
+                "up":    { "uv": [ 2, 2, 14, 14 ], "texture": "#top", "rotation": 180 },
                 "north": { "uv": [ 2, 2, 14, 0 ],  "texture": "#top" },
                 "south": { "uv": [ 2, 2, 14, 0 ],  "texture": "#top" },
                 "east":  { "uv": [ 2, 2, 14, 0 ],  "texture": "#top" },
