@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 import dan200.computercraft.api.lua.LuaException;
+import net.minecraft.util.Vec3i;
+
 
 public class ModelProgramProcessor {
 
-	private List<Float> cacheFloats;
+	private List<Vec3f> cacheVec3s;
 
 	public static final byte VERSION = 0x00;
 
@@ -42,8 +44,8 @@ public class ModelProgramProcessor {
 	public static final String NAME_SCALE = "scale";
 
 	public byte[] compile(Map<Object, Object> modelProgram) throws LuaException {
-		cacheFloats = new ArrayList<Float>();
-		ByteArrayOutputStream bufFloatIndex = new ByteArrayOutputStream();
+		cacheVec3s = new ArrayList<Vec3f>();
+		ByteArrayOutputStream bufVertexIndex = new ByteArrayOutputStream();
 		ByteArrayOutputStream bufCommands = new ByteArrayOutputStream();
 
 		for (int i = 0; i < modelProgram.size(); i++ ) {
@@ -95,39 +97,21 @@ public class ModelProgramProcessor {
 
 			} else if (NAME_ROTATE_X.equals(statemant[0]) && size >= 2) {
 				if (statemant[1] instanceof Double) {
-					short index = (short)cacheNumber(((Double)statemant[1]).floatValue());
-
-					if (index < 0) {
-						throw new LuaException("CC3DProjector: Float index buffer overflow");
-					}
-
-					byte[] bytes = toByteArray(index);
+					byte[] bytes = toByteArray(((Double)statemant[1]).floatValue());
 					bufCommands.write(ROTATE_X);
 					bufCommands.write(bytes, 0, bytes.length);
 				}
 
 			} else if (NAME_ROTATE_Y.equals(statemant[0]) && size >= 2) {
 				if (statemant[1] instanceof Double) {
-					short index = (short)cacheNumber(((Double)statemant[1]).floatValue());
-
-					if (index < 0) {
-						throw new LuaException("CC3DProjector: Float index buffer overflow");
-					}
-
-					byte[] bytes = toByteArray(index);
+					byte[] bytes = toByteArray(((Double)statemant[1]).floatValue());
 					bufCommands.write(ROTATE_Y);
 					bufCommands.write(bytes, 0, bytes.length);
 				}
 
 			} else if (NAME_ROTATE_Z.equals(statemant[0]) && size >= 2) {
 				if (statemant[1] instanceof Double) {
-					short index = (short)cacheNumber(((Double)statemant[1]).floatValue());
-
-					if (index < 0) {
-						throw new LuaException("CC3DProjector: Float index buffer overflow");
-					}
-
-					byte[] bytes = toByteArray(index);
+					byte[] bytes = toByteArray(((Double)statemant[1]).floatValue());
 					bufCommands.write(ROTATE_Z);
 					bufCommands.write(bytes, 0, bytes.length);
 				}
@@ -137,29 +121,44 @@ public class ModelProgramProcessor {
 
 		}
 
-		bufFloatIndex.write(VERSION);
+		bufVertexIndex.write(VERSION);
 
-		byte[] bytes = toByteArray((short)cacheFloats.size());
-		bufFloatIndex.write(bytes, 0, bytes.length);
+		byte[] bytes = toByteArray((short)cacheVec3s.size());
+		bufVertexIndex.write(bytes, 0, bytes.length);
 
-		for (Float f : cacheFloats) {
-			byte[] bf = toByteArray(f);
-			bufFloatIndex.write(bf, 0, bf.length);
+		for (Vec3f v : cacheVec3s) {
+			byte[] bf;
+			bf = toByteArray(v.xCoord);
+			bufVertexIndex.write(bf, 0, bf.length);
+
+			bf = toByteArray(v.yCoord);
+			bufVertexIndex.write(bf, 0, bf.length);
+
+			bf = toByteArray(v.zCoord);
+			bufVertexIndex.write(bf, 0, bf.length);
 		}
 
 		byte[] bsize = toByteArray(bufCommands.size());
-		bufFloatIndex.write(bsize, 0, bsize.length);
+		bufVertexIndex.write(bsize, 0, bsize.length);
 
 		byte[] byteCommands = bufCommands.toByteArray();
-		bufFloatIndex.write(byteCommands, 0, byteCommands.length);
+		bufVertexIndex.write(byteCommands, 0, byteCommands.length);
 
-		System.out.println("buf-size: " + bufFloatIndex.size());
+		/*
+		System.out.println("buf-size: " + bufVertexIndex.size());
 
-		return bufFloatIndex.toByteArray();
+		System.out.print("{");
+		for (byte b : bufVertexIndex.toByteArray()) {
+			System.out.printf("%02X,", b);
+		}
+		System.out.print("}\n");
+		// */
+
+		return bufVertexIndex.toByteArray();
 	}
 
 	public Map decompile(byte[] compiledProgram) throws LuaException {
-		cacheFloats = new ArrayList<Float>();
+		cacheVec3s = new ArrayList<Vec3f>();
 		ByteBuffer buf = ByteBuffer.wrap(compiledProgram);
 		Map<Object, Object> modelProgram = new HashMap<Object, Object>();
 
@@ -170,7 +169,10 @@ public class ModelProgramProcessor {
 		int indexCount = buf.getShort() & 0xFFFF;
 
 		for (int i  = 0; i < indexCount; i++) {
-			cacheFloats.add(buf.getFloat());
+			float x = buf.getFloat();
+			float y = buf.getFloat();
+			float z = buf.getFloat();
+			cacheVec3s.add(new Vec3f(x, y, z));
 		}
 
 		int size = buf.getInt();
@@ -213,18 +215,21 @@ public class ModelProgramProcessor {
 				statement.put(1, NAME_ROTATE_X);
 				statement.put(2, buf.getFloat());
 				modelProgram.put(commandCount, statement);
+				break;
 			case ROTATE_Y:
 				chaeckBufferRemaining(buf, 4);
 				statement = new HashMap<Object, Object>();
 				statement.put(1, NAME_ROTATE_Y);
 				statement.put(2, buf.getFloat());
 				modelProgram.put(commandCount, statement);
+				break;
 			case ROTATE_Z:
 				chaeckBufferRemaining(buf, 4);
 				statement = new HashMap<Object, Object>();
 				statement.put(1, NAME_ROTATE_Z);
 				statement.put(2, buf.getFloat());
 				modelProgram.put(commandCount, statement);
+				break;
 			}
 		}
 
@@ -243,7 +248,7 @@ public class ModelProgramProcessor {
 		int size = statemant.length;
 
 		if (command.equals(statemant[0]) && size >= 2) {
-			List<Float> vertices = new ArrayList<Float>();
+			List<Integer> vertexIndices = new ArrayList<Integer>();
 
 			for (int j = 1; j < size && (j - 1) < maxVertexCount; j++) {
 				if (statemant[j] instanceof Map) {
@@ -253,27 +258,25 @@ public class ModelProgramProcessor {
 							&& m.get(Double.valueOf(1)) instanceof Double
 							&& m.get(Double.valueOf(2)) instanceof Double
 							&& m.get(Double.valueOf(3)) instanceof Double) {
-						vertices.add(((Double)m.get(Double.valueOf(1))).floatValue());
-						vertices.add(((Double)m.get(Double.valueOf(2))).floatValue());
-						vertices.add(((Double)m.get(Double.valueOf(3))).floatValue());
+						float x = ((Double)m.get(Double.valueOf(1))).floatValue();
+						float y = ((Double)m.get(Double.valueOf(2))).floatValue();
+						float z = ((Double)m.get(Double.valueOf(3))).floatValue();
+						vertexIndices.add(setVec3ToCache(new Vec3f(x, y, z)));
 					}
 				}
 			}
 
-			if (vertices.size() >= minVertexCount * 3) {
+			if (vertexIndices.size() >= minVertexCount) {
 				bufCommands.write(commandCode);
-				bufCommands.write(vertices.size() / 3);
+				bufCommands.write(vertexIndices.size());
 
-				for (Float vertex : vertices) {
-					short index = (short)cacheNumber(vertex);
-
+				for (int index : vertexIndices) {
 					if (index < 0) {
-						throw new LuaException("CC3DProjector: Float index buffer overflow");
+						throw new LuaException("CC3DProjector: Vertex buffer overflow");
 					}
 
-					byte[] bytes = toByteArray(index);
+					byte[] bytes = toByteArray((short)index);
 					bufCommands.write(bytes, 0, bytes.length);
-
 				}
 
 			}
@@ -291,23 +294,20 @@ public class ModelProgramProcessor {
 		Map<Object, Object> statement = new HashMap<Object, Object>();
 		statement.put(1, command);
 
-		chaeckBufferRemaining(inputBuf, vertexCount * 6);
+		chaeckBufferRemaining(inputBuf, vertexCount * 2);
 
 		for (int i = 0; i < vertexCount; i++) {
 			Map<Object, Object> vertex = new HashMap<Object, Object>();
+			int index = inputBuf.getShort() & 0xFFFF;
+			Vec3f v = getVec3FromCache(index);
 
-			for (int j = 0; j < 3; j++) {
-				int index = inputBuf.getShort() & 0xFFFF;
-				float f = 0;
-
-				if (cacheFloats.size() > index) {
-					f = cacheFloats.get(index);
-				} else {
-					throw new LuaException("CC3DProjector: Float index buffer index out of bounds");
-				}
-
-				vertex.put(j + 1, f);
+			if (v == null) {
+				throw new LuaException("CC3DProjector: Vertex buffer index out of bounds : " + inputBuf.position());
 			}
+
+			vertex.put(1, v.xCoord);
+			vertex.put(2, v.yCoord);
+			vertex.put(3, v.zCoord);
 
 			statement.put(i + 2, vertex);
 		}
@@ -321,15 +321,23 @@ public class ModelProgramProcessor {
 		}
 	}
 
-	private int cacheNumber(float f) {
-		if (cacheFloats.contains(f)) {
-			return cacheFloats.indexOf(f);
-		} else if (cacheFloats.size() < 0x10000) {
-			cacheFloats.add(f);
-			return cacheFloats.size() - 1;
+	private int setVec3ToCache(Vec3f v) {
+		if (cacheVec3s.contains(v)) {
+			return cacheVec3s.indexOf(v);
+		} else if (cacheVec3s.size() < 0x10000) {
+			cacheVec3s.add(v);
+			return cacheVec3s.size() - 1;
 		}
 
 		return -1;
+	}
+
+	private Vec3f getVec3FromCache(int index) {
+		if (index >= 0 && index < cacheVec3s.size()) {
+			return cacheVec3s.get(index);
+		}
+
+		return null;
 	}
 
 	private byte[] toByteArray(int value) {
@@ -348,6 +356,60 @@ public class ModelProgramProcessor {
 		int arraySize = Float.SIZE / Byte.SIZE;
 		ByteBuffer buffer = ByteBuffer.allocate(arraySize);
 		return buffer.putFloat(value).array();
+	}
+
+	public static class Vec3f {
+
+		public static final Vec3f ZERO = new Vec3f(0.0F, 0.0F, 0.0F);
+		public final float xCoord;
+		public final float yCoord;
+		public final float zCoord;
+
+		public Vec3f(float x, float y, float z) {
+			if (x == -0.0F) {
+				x = 0.0F;
+			}
+
+			if (y == -0.0F) {
+				y = 0.0F;
+			}
+
+			if (z == -0.0F) {
+				z = 0.0F;
+			}
+
+			this.xCoord = x;
+			this.yCoord = y;
+			this.zCoord = z;
+		}
+
+		public Vec3f(Vec3i vector) {
+			this((float) vector.getX(), (float) vector.getY(), (float) vector.getZ());
+		}
+
+		public boolean equals(Object p_equals_1_) {
+			if (this == p_equals_1_) {
+				return true;
+			} else if (!(p_equals_1_ instanceof Vec3f)) {
+				return false;
+			} else {
+				Vec3f vec3f = (Vec3f) p_equals_1_;
+				return Double.compare(vec3f.xCoord, this.xCoord) != 0 ? false
+						: (Double.compare(vec3f.yCoord, this.yCoord) != 0 ? false
+								: Double.compare(vec3f.zCoord, this.zCoord) == 0);
+			}
+		}
+
+		public int hashCode() {
+			long j = Double.doubleToLongBits(this.xCoord);
+			int i = (int) (j ^ j >>> 32);
+			j = Double.doubleToLongBits(this.yCoord);
+			i = 31 * i + (int) (j ^ j >>> 32);
+			j = Double.doubleToLongBits(this.zCoord);
+			i = 31 * i + (int) (j ^ j >>> 32);
+			return i;
+		}
+
 	}
 
 }
