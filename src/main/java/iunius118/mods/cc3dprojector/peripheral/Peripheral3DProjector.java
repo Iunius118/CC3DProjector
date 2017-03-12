@@ -1,16 +1,14 @@
 package iunius118.mods.cc3dprojector.peripheral;
 
+import java.util.Map;
+
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
-import iunius118.mods.cc3dprojector.CC3DProjector;
-import iunius118.mods.cc3dprojector.block.Block3DProjector;
 import iunius118.mods.cc3dprojector.tileentity.TileEntity3DProjector;
-import iunius118.mods.cc3dprojector.upgrade.Turtle3DProjector;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 
 public class Peripheral3DProjector implements IPeripheral {
@@ -20,18 +18,18 @@ public class Peripheral3DProjector implements IPeripheral {
 	private final ITurtleAccess turtleAccess;
 	private final TurtleSide turtleSide;
 
-	public Peripheral3DProjector(ITurtleAccess turtle, TurtleSide side) {
-		type = PeripheralType.UPGRADE;
-		tileentity = null;
-		turtleAccess = turtle;
-		turtleSide = side;
-	}
-
 	public Peripheral3DProjector(TileEntity3DProjector tile) {
 		type = PeripheralType.TILEENTITY;
 		tileentity = tile;
 		turtleAccess = null;
 		turtleSide = null;
+	}
+
+	public Peripheral3DProjector(ITurtleAccess turtle, TurtleSide side) {
+		type = PeripheralType.UPGRADE;
+		tileentity = null;
+		turtleAccess = turtle;
+		turtleSide = side;
 	}
 
 	@Override
@@ -41,48 +39,21 @@ public class Peripheral3DProjector implements IPeripheral {
 
 	@Override
 	public String[] getMethodNames() {
-		return new String[] {"turnOn", "turnOff"};
-	}
-
-	public void turnOn() {
-		if (type == PeripheralType.UPGRADE) {
-			NBTTagCompound tag = turtleAccess.getUpgradeNBTData(turtleSide);
-
-			if (tag != null && tag.getBoolean(Turtle3DProjector.TAG_IS_ON) == false) {
-				tag.setBoolean(Turtle3DProjector.TAG_IS_ON, true);
-				turtleAccess.updateUpgradeNBTData(turtleSide);
-			}
-		} else {
-			if (tileentity.getBlockMetadata() == 0) {
-				tileentity.getWorld().setBlockState(tileentity.getPos(), CC3DProjector.block3DProjector.getDefaultState().withProperty(Block3DProjector.IS_ON, Boolean.TRUE));
-			}
-		}
-	}
-
-	public void turnOff() {
-		if (type == PeripheralType.UPGRADE) {
-			NBTTagCompound tag = turtleAccess.getUpgradeNBTData(turtleSide);
-
-			if (tag != null && tag.getBoolean(Turtle3DProjector.TAG_IS_ON) == true) {
-				tag.setBoolean(Turtle3DProjector.TAG_IS_ON, false);
-				turtleAccess.updateUpgradeNBTData(turtleSide);
-			}
-		} else {
-			if (tileentity.getBlockMetadata() == 1) {
-				tileentity.getWorld().setBlockState(tileentity.getPos(), CC3DProjector.block3DProjector.getDefaultState().withProperty(Block3DProjector.IS_ON, Boolean.FALSE));
-			}
-		}
+		return new String[] {"send", "clear"};
 	}
 
 	@Override
 	public Object[] callMethod(IComputerAccess computer, ILuaContext context, int method, Object[] arguments) throws LuaException, InterruptedException {
 		switch (method) {
-		case 0: 	// turnOn
-			turnOn();
-			break;
-		case 1: 	// turnOff
-			turnOff();
-			break;
+		case 0: 	// send( table )
+			if (arguments.length == 0 || !(arguments[0] instanceof Map)) {
+				throw new LuaException("Expected table");
+			} else {
+				ModelProgramProcessor model = new ModelProgramProcessor();
+				byte[] buf = model.compile((Map)arguments[0]);
+				Map map = model.decompile(buf);
+				return new Object[] {map};
+			}
 		}
 
 		return null;
@@ -113,6 +84,58 @@ public class Peripheral3DProjector implements IPeripheral {
 		}
 
 		return false;
+	}
+
+	public class Identification {
+
+		private final PeripheralType type;
+		private final BlockPos pos;
+		private final int computerID;
+		private final TurtleSide turtleSide;
+
+		public Identification(TileEntity3DProjector tile) {
+			type = PeripheralType.TILEENTITY;
+			pos = tile.getPos();
+			computerID = -1;
+			turtleSide = null;
+		}
+
+		public Identification(IComputerAccess computer, TurtleSide side) {
+			type = PeripheralType.UPGRADE;
+			pos = null;
+			computerID = computer.getID();
+			turtleSide = side;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+
+			if (!(obj instanceof Identification)) {
+				return false;
+			}
+
+			Identification other = (Identification) obj;
+
+			if (type != other.type) {
+				return false;
+			}
+
+			if (type == PeripheralType.TILEENTITY) {
+				if (pos != null && pos.equals(other.pos)) {
+					return true;
+				}
+			} else {
+				if (computerID == other.computerID && type == other.type) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 	}
 
 }

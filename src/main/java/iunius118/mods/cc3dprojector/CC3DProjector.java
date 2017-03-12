@@ -46,6 +46,8 @@ public class CC3DProjector {
 	public static Block block3DProjector;
 	public static final String NAME_BLOCK_3D_PROJECTOR = "3dprojector";
 
+	public static Turtle3DProjector turtle3DProjector = new Turtle3DProjector();
+
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
 		block3DProjector = new Block3DProjector().setUnlocalizedName(NAME_BLOCK_3D_PROJECTOR);
@@ -53,7 +55,7 @@ public class CC3DProjector {
 		GameRegistry.registerTileEntity(TileEntity3DProjector.class, NAME_BLOCK_3D_PROJECTOR);
 
 		ComputerCraftAPI.registerPeripheralProvider(new PeripheralProvider());
-		ComputerCraftAPI.registerTurtleUpgrade(new Turtle3DProjector());
+		ComputerCraftAPI.registerTurtleUpgrade(turtle3DProjector);
 
 		if (event.getSide().isClient()) {
 			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block3DProjector), 0, new ModelResourceLocation(MOD_ID + ":" + NAME_BLOCK_3D_PROJECTOR, "inventory"));

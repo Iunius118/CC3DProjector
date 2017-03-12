@@ -103,6 +103,7 @@ public class Turtle3DProjector implements ITurtleUpgrade {
 			}
 		}
 	}
+
 	@Override
 	public void update(ITurtleAccess turtle, TurtleSide side) {
 
