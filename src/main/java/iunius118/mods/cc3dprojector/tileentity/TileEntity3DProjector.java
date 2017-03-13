@@ -42,7 +42,6 @@ public class TileEntity3DProjector extends TileEntity implements ITickable {
 		this.readFromNBT(pkt.getNbtCompound());
 	}
 
-
 	@Override
 	public void update() {
 

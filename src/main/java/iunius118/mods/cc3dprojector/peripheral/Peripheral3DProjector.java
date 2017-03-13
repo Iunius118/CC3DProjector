@@ -8,10 +8,16 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
+import iunius118.mods.cc3dprojector.CC3DProjector;
+import iunius118.mods.cc3dprojector.block.Block3DProjector;
 import iunius118.mods.cc3dprojector.tileentity.TileEntity3DProjector;
+import iunius118.mods.cc3dprojector.upgrade.Turtle3DProjector;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 
 public class Peripheral3DProjector implements IPeripheral {
+
+	public static final String TAG_MODEL = "model";
 
 	private final PeripheralType type;
 	private final TileEntity3DProjector tileentity;
@@ -51,9 +57,26 @@ public class Peripheral3DProjector implements IPeripheral {
 			} else {
 				ModelProgramProcessor model = new ModelProgramProcessor();
 				byte[] buf = model.compile((Map)arguments[0]);
-				Map map = model.decompile(buf);
+
+				System.out.println("compiled size: " + buf.length);
+
+				byte[] buf2 = model.deflate(buf);
+
+				System.out.println("deflated size: " + buf2.length);
+
+				byte[] buf3 = model.inflate(buf2);
+
+				System.out.println("inflated size: " + buf3.length);
+
+				Map map = model.decompile(buf3);
+
+				addModelProgram(buf2);
+
 				return new Object[] {map};
 			}
+
+		case 1: 	// clear()
+			removeModelProgram();
 		}
 
 		return null;
@@ -84,6 +107,49 @@ public class Peripheral3DProjector implements IPeripheral {
 		}
 
 		return false;
+	}
+
+	private void addModelProgram(byte[] buf) {
+		NBTTagCompound tag = null;
+
+		if (type == PeripheralType.TILEENTITY) {
+			tag = tileentity.getTileData();
+		} else if (type == PeripheralType.UPGRADE) {
+			tag = turtleAccess.getUpgradeNBTData(turtleSide);
+		}
+
+		if (tag != null) {
+			tag.setByteArray(TAG_MODEL, buf);
+
+
+			if (type == PeripheralType.TILEENTITY) {
+				tileentity.getWorld().setBlockState(tileentity.getPos(), CC3DProjector.block3DProjector.getDefaultState().withProperty(Block3DProjector.IS_ON, Boolean.TRUE));
+			} else if (type == PeripheralType.UPGRADE) {
+				tag.setBoolean(Turtle3DProjector.TAG_IS_ON, true);
+				turtleAccess.updateUpgradeNBTData(turtleSide);
+			}
+		}
+	}
+
+	private void removeModelProgram() {
+		NBTTagCompound tag = null;
+
+		if (type == PeripheralType.TILEENTITY) {
+			tag = tileentity.getTileData();
+		} else if (type == PeripheralType.UPGRADE) {
+			tag = turtleAccess.getUpgradeNBTData(turtleSide);
+		}
+
+		if (tag != null) {
+			tag.removeTag(TAG_MODEL);
+
+			if (type == PeripheralType.TILEENTITY) {
+				tileentity.getWorld().setBlockState(tileentity.getPos(), CC3DProjector.block3DProjector.getDefaultState().withProperty(Block3DProjector.IS_ON, Boolean.FALSE));
+			} else if (type == PeripheralType.UPGRADE) {
+				tag.setBoolean(Turtle3DProjector.TAG_IS_ON, false);
+				turtleAccess.updateUpgradeNBTData(turtleSide);
+			}
+		}
 	}
 
 	public class Identification {
@@ -127,7 +193,7 @@ public class Peripheral3DProjector implements IPeripheral {
 				if (pos != null && pos.equals(other.pos)) {
 					return true;
 				}
-			} else {
+			} else if (type == PeripheralType.UPGRADE) {
 				if (computerID == other.computerID && type == other.type) {
 					return true;
 				}

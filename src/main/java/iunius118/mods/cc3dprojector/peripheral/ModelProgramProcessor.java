@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 import dan200.computercraft.api.lua.LuaException;
 import net.minecraft.util.Vec3i;
@@ -162,6 +165,8 @@ public class ModelProgramProcessor {
 		ByteBuffer buf = ByteBuffer.wrap(compiledProgram);
 		Map<Object, Object> modelProgram = new HashMap<Object, Object>();
 
+		chaeckBufferRemaining(buf, 7);
+
 		if (buf.get() != VERSION) {
 			return modelProgram;
 		}
@@ -237,11 +242,42 @@ public class ModelProgramProcessor {
 	}
 
 	public byte[] deflate(byte[] buffer){
-		return null;
+		ByteArrayOutputStream ret = new ByteArrayOutputStream();
+		Deflater compressor = new Deflater();
+		byte[] bufTmp = new byte[1024];
+
+		compressor.setInput(buffer);
+		compressor.finish();
+
+		while (!compressor.finished()) {
+			int size = compressor.deflate(bufTmp);
+			ret.write(bufTmp, 0, size);
+		}
+
+		compressor.end();
+		return ret.toByteArray();
 	}
 
 	public byte[] inflate(byte[] buffer){
-		return null;
+		ByteArrayOutputStream ret = new ByteArrayOutputStream();
+		Inflater decompressor = new Inflater();
+		byte[] bufTmp = new byte[1024];
+
+		decompressor.setInput(buffer);
+
+		try {
+			while (!decompressor.finished()) {
+				int size = decompressor.inflate(bufTmp);
+				ret.write(bufTmp, 0, size);
+			}
+
+			decompressor.end();
+		} catch (DataFormatException e) {
+			e.printStackTrace();
+			return new byte[0];
+		}
+
+		return ret.toByteArray();
 	}
 
 	private boolean writeCommandAndVertices(Object[] statemant, String command, byte commandCode, int minVertexCount, int maxVertexCount, ByteArrayOutputStream bufCommands) throws LuaException {
