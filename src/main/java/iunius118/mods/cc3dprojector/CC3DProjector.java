@@ -147,11 +147,11 @@ public class CC3DProjector {
 			if (turtle == null) {
 				pos = new Vec3(id.pos).subtract(playerX, playerY, playerZ);
 			} else {
-				pos = turtle.getVisualPosition(event.partialTicks).subtract(playerX + 0.5D, playerY + 0.5D, playerZ + 0.5D);
+				pos = turtle.getVisualPosition(event.partialTicks).subtract(playerX, playerY, playerZ);
 				yaw = turtle.getVisualYaw(event.partialTicks);
 			}
 
-			Renderer3DModel.doRender(event, pos, yaw, model);
+			Renderer3DModel.doRender(event, pos, yaw, model, turtle != null);
 
 			if (id.type == PeripheralType.UPGRADE) {
 				queue3DModelCopy.put(id, Pair.<List<Map<Integer, Object>>, ITurtleAccess>of(model, null));

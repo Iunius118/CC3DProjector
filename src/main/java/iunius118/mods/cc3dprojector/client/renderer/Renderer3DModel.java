@@ -15,7 +15,7 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 
 public class Renderer3DModel {
 
-	public static void doRender(RenderWorldLastEvent event, Vec3 pos, float yaw, List<Map<Integer, Object>> model) {
+	public static void doRender(RenderWorldLastEvent event, Vec3 pos, float yaw, List<Map<Integer, Object>> model, boolean isTurtle) {
 		Object obj;
 
 		Tessellator tessellator = Tessellator.getInstance();
@@ -28,6 +28,10 @@ public class Renderer3DModel {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.translate(pos.xCoord, pos.yCoord + 1.0D, pos.zCoord);
 		GlStateManager.rotate(yaw, 0.0f, -1.0f, 0.0f);
+
+		if (isTurtle) {
+			GlStateManager.translate(-0.5D, -0.5D, -0.5D);
+		}
 
 		for (Map<Integer, Object> statement : model) {
 			obj = statement.get(Integer.valueOf(1));
