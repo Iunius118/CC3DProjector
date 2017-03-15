@@ -1,5 +1,7 @@
 package iunius118.mods.cc3dprojector.peripheral;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dan200.computercraft.api.lua.ILuaContext;
@@ -45,38 +47,45 @@ public class Peripheral3DProjector implements IPeripheral {
 
 	@Override
 	public String[] getMethodNames() {
-		return new String[] {"send", "clear"};
+		return new String[] {"write", "read", "clear"};
 	}
 
 	@Override
 	public Object[] callMethod(IComputerAccess computer, ILuaContext context, int method, Object[] arguments) throws LuaException, InterruptedException {
 		switch (method) {
-		case 0: 	// send( table )
+		case 0: 	// write( table )
 			if (arguments.length == 0 || !(arguments[0] instanceof Map)) {
 				throw new LuaException("Expected table");
 			} else {
-				ModelProgramProcessor model = new ModelProgramProcessor();
-				byte[] buf = model.compile((Map)arguments[0]);
+				ModelProgramProcessor processor = new ModelProgramProcessor();
+				byte[] buf = processor.compile((Map)arguments[0]);
+				byte[] buf2 = processor.deflate(buf);
+				setModelProgram(buf2, computer.getID());
+			}
 
-				System.out.println("compiled size: " + buf.length);
+			break;
 
-				byte[] buf2 = model.deflate(buf);
+		case 1: 	// read() -> table
+			byte[] buf = getModelProgram();
 
-				System.out.println("deflated size: " + buf2.length);
+			if (buf != null) {
+				ModelProgramProcessor processor = new ModelProgramProcessor();
+				byte[] buf2 = processor.inflate(buf);
+				List<Map<Integer, Object>> list = processor.decompile(buf2);
+				Map<Integer, Map<Integer, Object>> map = new HashMap();
 
-				byte[] buf3 = model.inflate(buf2);
-
-				System.out.println("inflated size: " + buf3.length);
-
-				Map map = model.decompile(buf3);
-
-				addModelProgram(buf2);
+				for (int i = 0; i < list.size(); i++) {
+					map.put(Integer.valueOf(i + 1), list.get(i));
+				}
 
 				return new Object[] {map};
 			}
 
-		case 1: 	// clear()
-			removeModelProgram();
+			break;
+
+		case 2: 	// clear()
+			clearModelProgram();
+			break;
 		}
 
 		return null;
@@ -109,7 +118,7 @@ public class Peripheral3DProjector implements IPeripheral {
 		return false;
 	}
 
-	private void addModelProgram(byte[] buf) {
+	private void setModelProgram(byte[] buf, int computerID) {
 		NBTTagCompound tag = null;
 
 		if (type == PeripheralType.TILEENTITY) {
@@ -119,19 +128,40 @@ public class Peripheral3DProjector implements IPeripheral {
 		}
 
 		if (tag != null) {
-			tag.setByteArray(TAG_MODEL, buf);
-
-
 			if (type == PeripheralType.TILEENTITY) {
+				tileentity.getWorld().setBlockState(tileentity.getPos(), CC3DProjector.block3DProjector.getDefaultState().withProperty(Block3DProjector.IS_ON, Boolean.FALSE));
 				tileentity.getWorld().setBlockState(tileentity.getPos(), CC3DProjector.block3DProjector.getDefaultState().withProperty(Block3DProjector.IS_ON, Boolean.TRUE));
+				tag.setByteArray(TAG_MODEL, buf);
 			} else if (type == PeripheralType.UPGRADE) {
+				tag.setByteArray(TAG_MODEL, buf);
 				tag.setBoolean(Turtle3DProjector.TAG_IS_ON, true);
+				tag.setInteger(Turtle3DProjector.TAG_COMPUTER_ID, computerID);
 				turtleAccess.updateUpgradeNBTData(turtleSide);
 			}
 		}
 	}
 
-	private void removeModelProgram() {
+	private byte[] getModelProgram() {
+		byte[] buf = null;
+		NBTTagCompound tag = null;
+
+		if (type == PeripheralType.TILEENTITY) {
+			tag = tileentity.getTileData();
+		} else if (type == PeripheralType.UPGRADE) {
+			tag = turtleAccess.getUpgradeNBTData(turtleSide);
+		}
+
+		if (tag != null) {
+			buf = tag.getByteArray(TAG_MODEL);
+			if (buf.length > 0) {
+				return buf;
+			}
+		}
+
+		return null;
+	}
+
+	private void clearModelProgram() {
 		NBTTagCompound tag = null;
 
 		if (type == PeripheralType.TILEENTITY) {
@@ -152,25 +182,36 @@ public class Peripheral3DProjector implements IPeripheral {
 		}
 	}
 
-	public class Identification {
+	public static class Identification {
 
-		private final PeripheralType type;
-		private final BlockPos pos;
-		private final int computerID;
-		private final TurtleSide turtleSide;
+		public final PeripheralType type;
+		public final BlockPos pos;
+		public final int id;
+		public final TurtleSide turtleSide;
 
 		public Identification(TileEntity3DProjector tile) {
 			type = PeripheralType.TILEENTITY;
 			pos = tile.getPos();
-			computerID = -1;
+			id = -1;
 			turtleSide = null;
 		}
 
-		public Identification(IComputerAccess computer, TurtleSide side) {
+		public Identification(int computerID, TurtleSide side) {
 			type = PeripheralType.UPGRADE;
 			pos = null;
-			computerID = computer.getID();
+			id = computerID;
 			turtleSide = side;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + id;
+			result = prime * result + ((pos == null) ? 0 : pos.hashCode());
+			result = prime * result + ((turtleSide == null) ? 0 : turtleSide.hashCode());
+			result = prime * result + ((type == null) ? 0 : type.hashCode());
+			return result;
 		}
 
 		@Override
@@ -194,7 +235,8 @@ public class Peripheral3DProjector implements IPeripheral {
 					return true;
 				}
 			} else if (type == PeripheralType.UPGRADE) {
-				if (computerID == other.computerID && type == other.type) {
+				if (id > -1 && id == other.id
+						&& turtleSide != null && turtleSide == other.turtleSide) {
 					return true;
 				}
 			}

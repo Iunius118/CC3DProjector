@@ -19,12 +19,13 @@ public class ModelProgramProcessor {
 	private List<Vec3f> cacheVec3s;
 
 	public static final byte VERSION = 0x00;
+	public static final byte MIN_SIZE = 7;
 
 	public static final byte COLOR = 0x20;
 
 	public static final byte POINTS = 0x30;
-	public static final byte LINES = 0x38;
-	public static final byte LOOPS = 0x40;
+	public static final byte LINE_STRIP = 0x38;
+	public static final byte LINE_LOOP = 0x40;
 	public static final byte FACE = 0x48;
 
 	public static final byte TRANSLATE = 0x50;
@@ -33,11 +34,24 @@ public class ModelProgramProcessor {
 	public static final byte ROTATE_Z = 0x62;
 	public static final byte SCALE = 0x70;
 
+	public static final int SIZE_COLOR = 2;
+
+	public static final int SIZE_POINTS = 2;
+	public static final int SIZE_LINE_STRIP = 3;
+	public static final int SIZE_LINE_LOOP = 4;
+	public static final int SIZE_FACE = 5;
+
+	public static final int SIZE_TRANSLATE = 2;
+	public static final int SIZE_ROTATE_X = 2;
+	public static final int SIZE_ROTATE_Y = 2;
+	public static final int SIZE_ROTATE_Z = 2;
+	public static final int SIZE_SCALE = 2;
+
 	public static final String NAME_COLOR = "color";
 
 	public static final String NAME_POINTS = "point";
-	public static final String NAME_LINES = "line";
-	public static final String NAME_LOOPS = "loop";
+	public static final String NAME_LINE_STRIP = "line";
+	public static final String NAME_LINE_LOOP = "loop";
 	public static final String NAME_FACE = "face";
 
 	public static final String NAME_TRANSLATE = "translate";
@@ -46,8 +60,8 @@ public class ModelProgramProcessor {
 	public static final String NAME_ROTATE_Z = "rotateZ";
 	public static final String NAME_SCALE = "scale";
 
-	public byte[] compile(Map<Object, Object> modelProgram) throws LuaException {
-		cacheVec3s = new ArrayList<Vec3f>();
+	public byte[] compile(Map modelProgram) throws LuaException {
+		cacheVec3s = new ArrayList();
 		ByteArrayOutputStream bufVertexIndex = new ByteArrayOutputStream();
 		ByteArrayOutputStream bufCommands = new ByteArrayOutputStream();
 
@@ -62,8 +76,8 @@ public class ModelProgramProcessor {
 				break;
 			}
 
-			Map<Object, Object> map = (Map<Object, Object>)value;
-			List<Object> list = new ArrayList<Object>();
+			Map map = (Map)value;
+			List<Object> list = new ArrayList();
 
 			for (int j = 0; j < map.size(); j++ ) {
 				if (map.containsKey(Double.valueOf(j + 1))) {
@@ -86,33 +100,33 @@ public class ModelProgramProcessor {
 					bufCommands.write(((Double)statemant[1]).intValue());
 				}
 
-			} else if (writeCommandAndVertices(statemant, NAME_POINTS, POINTS, 1, 256, bufCommands)) {
+			} else if (writeCommandAndVertices(statemant, NAME_POINTS, POINTS, SIZE_POINTS - 1, 256, bufCommands)) {
 
-			} else if (writeCommandAndVertices(statemant, NAME_LINES, LINES, 2, 256, bufCommands)) {
+			} else if (writeCommandAndVertices(statemant, NAME_LINE_STRIP, LINE_STRIP, SIZE_LINE_STRIP - 1, 256, bufCommands)) {
 
-			} else if (writeCommandAndVertices(statemant, NAME_LOOPS, LOOPS, 3, 256, bufCommands)) {
+			} else if (writeCommandAndVertices(statemant, NAME_LINE_LOOP, LINE_LOOP, SIZE_LINE_LOOP - 1, 256, bufCommands)) {
 
-			} else if (writeCommandAndVertices(statemant, NAME_FACE, FACE, 4, 4, bufCommands)) {
+			} else if (writeCommandAndVertices(statemant, NAME_FACE, FACE, SIZE_FACE - 1, SIZE_FACE - 1, bufCommands)) {
 
-			} else if (writeCommandAndVertices(statemant, NAME_TRANSLATE, TRANSLATE, 1, 1, bufCommands)) {
+			} else if (writeCommandAndVertices(statemant, NAME_TRANSLATE, TRANSLATE, SIZE_TRANSLATE - 1, SIZE_TRANSLATE - 1, bufCommands)) {
 
-			} else if (writeCommandAndVertices(statemant, NAME_SCALE, SCALE, 1, 1, bufCommands)) {
+			} else if (writeCommandAndVertices(statemant, NAME_SCALE, SCALE, SIZE_SCALE - 1, SIZE_SCALE - 1, bufCommands)) {
 
-			} else if (NAME_ROTATE_X.equals(statemant[0]) && size >= 2) {
+			} else if (NAME_ROTATE_X.equals(statemant[0]) && size >= SIZE_ROTATE_X) {
 				if (statemant[1] instanceof Double) {
 					byte[] bytes = toByteArray(((Double)statemant[1]).floatValue());
 					bufCommands.write(ROTATE_X);
 					bufCommands.write(bytes, 0, bytes.length);
 				}
 
-			} else if (NAME_ROTATE_Y.equals(statemant[0]) && size >= 2) {
+			} else if (NAME_ROTATE_Y.equals(statemant[0]) && size >= SIZE_ROTATE_Y) {
 				if (statemant[1] instanceof Double) {
 					byte[] bytes = toByteArray(((Double)statemant[1]).floatValue());
 					bufCommands.write(ROTATE_Y);
 					bufCommands.write(bytes, 0, bytes.length);
 				}
 
-			} else if (NAME_ROTATE_Z.equals(statemant[0]) && size >= 2) {
+			} else if (NAME_ROTATE_Z.equals(statemant[0]) && size >= SIZE_ROTATE_Z) {
 				if (statemant[1] instanceof Double) {
 					byte[] bytes = toByteArray(((Double)statemant[1]).floatValue());
 					bufCommands.write(ROTATE_Z);
@@ -160,12 +174,12 @@ public class ModelProgramProcessor {
 		return bufVertexIndex.toByteArray();
 	}
 
-	public Map decompile(byte[] compiledProgram) throws LuaException {
-		cacheVec3s = new ArrayList<Vec3f>();
+	public List<Map<Integer, Object>> decompile(byte[] compiledProgram) throws LuaException {
+		cacheVec3s = new ArrayList();
 		ByteBuffer buf = ByteBuffer.wrap(compiledProgram);
-		Map<Object, Object> modelProgram = new HashMap<Object, Object>();
+		List<Map<Integer, Object>> modelProgram = new ArrayList();
 
-		chaeckBufferRemaining(buf, 7);
+		chaeckBufferRemaining(buf, MIN_SIZE);
 
 		if (buf.get() != VERSION) {
 			return modelProgram;
@@ -184,9 +198,8 @@ public class ModelProgramProcessor {
 		int commandCount = 0;
 
 		while (buf.remaining() > 0) {
-			Map<Object, Object> statement;
+			Map statement;
 			byte commandCode = buf.get();
-			commandCount++;
 
 			switch(commandCode) {
 			case COLOR:
@@ -194,49 +207,51 @@ public class ModelProgramProcessor {
 				statement = new HashMap<Object, Object>();
 				statement.put(1, NAME_COLOR);
 				statement.put(2, buf.get() & 0xF);
-				modelProgram.put(commandCount, statement);
+				modelProgram.add(statement);
 				break;
 			case POINTS:
-				modelProgram.put(commandCount, readCommandAndVertices(buf, NAME_POINTS));
+				modelProgram.add(readCommandAndVertices(buf, NAME_POINTS));
 				break;
-			case LINES:
-				modelProgram.put(commandCount, readCommandAndVertices(buf, NAME_LINES));
+			case LINE_STRIP:
+				modelProgram.add(readCommandAndVertices(buf, NAME_LINE_STRIP));
 				break;
-			case LOOPS:
-				modelProgram.put(commandCount, readCommandAndVertices(buf, NAME_LOOPS));
+			case LINE_LOOP:
+				modelProgram.add(readCommandAndVertices(buf, NAME_LINE_LOOP));
 				break;
 			case FACE:
-				modelProgram.put(commandCount, readCommandAndVertices(buf, NAME_FACE));
+				modelProgram.add(readCommandAndVertices(buf, NAME_FACE));
 				break;
 			case TRANSLATE:
-				modelProgram.put(commandCount, readCommandAndVertices(buf, NAME_TRANSLATE));
+				modelProgram.add(readCommandAndVertices(buf, NAME_TRANSLATE));
 				break;
 			case SCALE:
-				modelProgram.put(commandCount, readCommandAndVertices(buf, NAME_SCALE));
+				modelProgram.add(readCommandAndVertices(buf, NAME_SCALE));
 				break;
 			case ROTATE_X:
 				chaeckBufferRemaining(buf, 4);
 				statement = new HashMap<Object, Object>();
 				statement.put(1, NAME_ROTATE_X);
 				statement.put(2, buf.getFloat());
-				modelProgram.put(commandCount, statement);
+				modelProgram.add(statement);
 				break;
 			case ROTATE_Y:
 				chaeckBufferRemaining(buf, 4);
 				statement = new HashMap<Object, Object>();
 				statement.put(1, NAME_ROTATE_Y);
 				statement.put(2, buf.getFloat());
-				modelProgram.put(commandCount, statement);
+				modelProgram.add(statement);
 				break;
 			case ROTATE_Z:
 				chaeckBufferRemaining(buf, 4);
 				statement = new HashMap<Object, Object>();
 				statement.put(1, NAME_ROTATE_Z);
 				statement.put(2, buf.getFloat());
-				modelProgram.put(commandCount, statement);
+				modelProgram.add(statement);
 				break;
 			}
 		}
+
+		System.out.println("Model decompiled");
 
 		return modelProgram;
 	}
@@ -284,7 +299,7 @@ public class ModelProgramProcessor {
 		int size = statemant.length;
 
 		if (command.equals(statemant[0]) && size >= 2) {
-			List<Integer> vertexIndices = new ArrayList<Integer>();
+			List<Integer> vertexIndices = new ArrayList();
 
 			for (int j = 1; j < size && (j - 1) < maxVertexCount; j++) {
 				if (statemant[j] instanceof Map) {
@@ -323,17 +338,17 @@ public class ModelProgramProcessor {
 		return false;
 	}
 
-	private Map readCommandAndVertices(ByteBuffer inputBuf, String command) throws LuaException {
+	private Map<Integer, Object> readCommandAndVertices(ByteBuffer inputBuf, String command) throws LuaException {
 		chaeckBufferRemaining(inputBuf, 1);
 
 		int vertexCount = inputBuf.get() & 0xFF;
-		Map<Object, Object> statement = new HashMap<Object, Object>();
+		Map<Integer, Object> statement = new HashMap();
 		statement.put(1, command);
 
 		chaeckBufferRemaining(inputBuf, vertexCount * 2);
 
 		for (int i = 0; i < vertexCount; i++) {
-			Map<Object, Object> vertex = new HashMap<Object, Object>();
+			Map<Integer, Object> vertex = new HashMap();
 			int index = inputBuf.getShort() & 0xFFFF;
 			Vec3f v = getVec3FromCache(index);
 

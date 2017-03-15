@@ -8,6 +8,8 @@ import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class Block3DProjector extends BlockContainer {
@@ -40,6 +42,21 @@ public class Block3DProjector extends BlockContainer {
 	@Override
 	public int getRenderType() {
 		return 3;
+	}
+
+	@Override
+	public boolean isOpaqueCube() {
+		return false;
+	}
+
+	@Override
+	public boolean isFullCube() {
+		return false;
+	}
+
+	@Override
+	public int getLightValue(IBlockAccess world, BlockPos pos) {
+		return (world.getBlockState(pos).getValue(IS_ON)) ? 15 : 0;
 	}
 
 	@Override
