@@ -77,7 +77,7 @@ public class Renderer3DModel {
 						GlStateManager.color(0.698f, 0.4f, 0.898f, 1.0f);
 						break;
 					case 11:
-						GlStateManager.color(0.145f, 0.192f, 0.573f, 1.0f);
+						GlStateManager.color(0.2f, 0.4f, 0.8f, 1.0f);
 						break;
 					case 12:
 						GlStateManager.color(0.498f, 0.4f, 0.298f, 1.0f);
