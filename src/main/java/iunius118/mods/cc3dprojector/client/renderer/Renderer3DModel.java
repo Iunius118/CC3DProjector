@@ -24,6 +24,8 @@ public class Renderer3DModel {
 		GlStateManager.pushMatrix();
 		GlStateManager.disableLighting();
 		GlStateManager.disableTexture2D();
+		GL11.glLineWidth(1.0F);
+		GL11.glPointSize(1.0F);
 
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.translate(pos.xCoord, pos.yCoord + 1.0D, pos.zCoord);
