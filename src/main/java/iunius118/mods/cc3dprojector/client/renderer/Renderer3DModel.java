@@ -17,6 +17,7 @@ public class Renderer3DModel {
 
 	public static void doRender(RenderWorldLastEvent event, Vec3 pos, float yaw, List<Map<Integer, Object>> model, boolean isTurtle) {
 		Object obj;
+		Color color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 
 		Tessellator tessellator = Tessellator.getInstance();
 		WorldRenderer worldrenderer = tessellator.getWorldRenderer();
@@ -24,6 +25,8 @@ public class Renderer3DModel {
 		GlStateManager.pushMatrix();
 		GlStateManager.disableLighting();
 		GlStateManager.disableTexture2D();
+		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		GlStateManager.enableBlend();
 		GL11.glLineWidth(1.0F);
 		GL11.glPointSize(1.0F);
 
@@ -46,54 +49,61 @@ public class Renderer3DModel {
 
 					switch(c) {
 					case 0:
-						GlStateManager.color(0.941f, 0.941f, 0.941f, 1.0f);
+						color.setColor(0.941f, 0.941f, 0.941f);
 						break;
 					case 1:
-						GlStateManager.color(0.949f, 0.698f, 0.2f, 1.0f);
+						color.setColor(0.949f, 0.698f, 0.2f);
 						break;
 					case 2:
-						GlStateManager.color(0.898f, 0.498f, 0.847f, 1.0f);
+						color.setColor(0.898f, 0.498f, 0.847f);
 						break;
 					case 3:
-						GlStateManager.color(0.6f, 0.698f, 0.949f, 1.0f);
+						color.setColor(0.6f, 0.698f, 0.949f);
 						break;
 					case 4:
-						GlStateManager.color(0.871f, 0.871f, 0.424f, 1.0f);
+						color.setColor(0.871f, 0.871f, 0.424f);
 						break;
 					case 5:
-						GlStateManager.color(0.498f, 0.8f, 0.098f, 1.0f);
+						color.setColor(0.498f, 0.8f, 0.098f);
 						break;
 					case 6:
-						GlStateManager.color(0.949f, 0.698f, 0.8f, 1.0f);
+						color.setColor(0.949f, 0.698f, 0.8f);
 						break;
 					case 7:
-						GlStateManager.color(0.298f, 0.298f, 0.298f, 1.0f);
+						color.setColor(0.298f, 0.298f, 0.298f);
 						break;
 					case 8:
-						GlStateManager.color(0.6f, 0.6f, 0.6f, 1.0f);
+						color.setColor(0.6f, 0.6f, 0.6f);
 						break;
 					case 9:
-						GlStateManager.color(0.298f, 0.6f, 0.698f, 1.0f);
+						color.setColor(0.298f, 0.6f, 0.698f);
 						break;
 					case 10:
-						GlStateManager.color(0.698f, 0.4f, 0.898f, 1.0f);
+						color.setColor(0.698f, 0.4f, 0.898f);
 						break;
 					case 11:
-						GlStateManager.color(0.2f, 0.4f, 0.8f, 1.0f);
+						color.setColor(0.2f, 0.4f, 0.8f);
 						break;
 					case 12:
-						GlStateManager.color(0.498f, 0.4f, 0.298f, 1.0f);
+						color.setColor(0.498f, 0.4f, 0.298f);
 						break;
 					case 13:
-						GlStateManager.color(0.341f, 0.651f, 0.306f, 1.0f);
+						color.setColor(0.341f, 0.651f, 0.306f);
 						break;
 					case 14:
-						GlStateManager.color(0.8f, 0.298f, 0.298f, 1.0f);
+						color.setColor(0.8f, 0.298f, 0.298f);
 						break;
 					case 15:
-						GlStateManager.color(0.098f, 0.098f, 0.098f, 1.0f);
+						color.setColor(0.098f, 0.098f, 0.098f);
 						break;
 					}
+
+					GlStateManager.color(color.r, color.g, color.b, color.a);
+
+				} else if (command.equals(ModelProgramProcessor.NAME_TRANSPARENCY) && statement.size() == ModelProgramProcessor.SIZE_TRANSPARENCY) {
+					float f = (Float)statement.get(Integer.valueOf(2));
+					color.a = f;
+					GlStateManager.color(color.r, color.g, color.b, color.a);
 
 				} else if (command.equals(ModelProgramProcessor.NAME_POINTS) && statement.size() >= ModelProgramProcessor.SIZE_POINTS) {
 					worldrenderer.begin(GL11.GL_POINTS, DefaultVertexFormats.POSITION);
@@ -141,15 +151,19 @@ public class Renderer3DModel {
 				} else if (command.equals(ModelProgramProcessor.NAME_TRANSLATE) && statement.size() == ModelProgramProcessor.SIZE_TRANSLATE) {
 					Map<Integer, Float> p = (Map<Integer, Float>)statement.get(Integer.valueOf(2));
 					GlStateManager.translate((double)p.get(Integer.valueOf(1)), (double)p.get(Integer.valueOf(2)), (double)p.get(Integer.valueOf(3)));
+
 				} else if (command.equals(ModelProgramProcessor.NAME_ROTATE_X) && statement.size() == ModelProgramProcessor.SIZE_ROTATE_X) {
 					float f = (Float)statement.get(Integer.valueOf(2));
 					GlStateManager.rotate(f, 1.0f, 0.0f, 0.0f);
+
 				} else if (command.equals(ModelProgramProcessor.NAME_ROTATE_Y) && statement.size() == ModelProgramProcessor.SIZE_ROTATE_Y) {
 					float f = (Float)statement.get(Integer.valueOf(2));
 					GlStateManager.rotate(f, 0.0f, 1.0f, 0.0f);
+
 				} else if (command.equals(ModelProgramProcessor.NAME_ROTATE_Z) && statement.size() == ModelProgramProcessor.SIZE_ROTATE_Z) {
 					float f = (Float)statement.get(Integer.valueOf(2));
 					GlStateManager.rotate(f, 0.0f, 0.0f, 1.0f);
+
 				} else if (command.equals(ModelProgramProcessor.NAME_SCALE) && statement.size() == ModelProgramProcessor.SIZE_SCALE) {
 					Map<Integer, Float> p = (Map<Integer, Float>)statement.get(Integer.valueOf(2));
 					GlStateManager.scale((double)p.get(Integer.valueOf(1)), (double)p.get(Integer.valueOf(2)), (double)p.get(Integer.valueOf(3)));
@@ -160,6 +174,33 @@ public class Renderer3DModel {
 		GlStateManager.enableTexture2D();
 		GlStateManager.enableLighting();
 		GlStateManager.popMatrix();
+	}
+
+	public static class Color {
+		public float r;
+		public float g;
+		public float b;
+		public float a;
+
+		public Color(float red, float green, float blue, float alpha) {
+			r = red;
+			g = green;
+			b = blue;
+			a = alpha;
+		}
+
+		public void setColor(float red, float green, float blue, float alpha) {
+			r = red;
+			g = green;
+			b = blue;
+			a = alpha;
+		}
+
+		public void setColor(float red, float green, float blue) {
+			r = red;
+			g = green;
+			b = blue;
+		}
 	}
 
 }

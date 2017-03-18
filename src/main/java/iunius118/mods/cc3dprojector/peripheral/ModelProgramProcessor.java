@@ -20,8 +20,11 @@ public class ModelProgramProcessor {
 
 	public static final byte VERSION = 0x00;
 	public static final byte MIN_SIZE = 7;
+	public static final int MAX_VERTEX_INDEX = 0xFFFF;
 
+	// Command byte codes
 	public static final byte COLOR = 0x20;
+	public static final byte TRANSPARENCY = 0x21;
 
 	public static final byte POINTS = 0x30;
 	public static final byte LINE_STRIP = 0x38;
@@ -34,7 +37,9 @@ public class ModelProgramProcessor {
 	public static final byte ROTATE_Z = 0x62;
 	public static final byte SCALE = 0x70;
 
+	// Minimum statement size
 	public static final int SIZE_COLOR = 2;
+	public static final int SIZE_TRANSPARENCY = 2;
 
 	public static final int SIZE_POINTS = 2;
 	public static final int SIZE_LINE_STRIP = 3;
@@ -47,7 +52,10 @@ public class ModelProgramProcessor {
 	public static final int SIZE_ROTATE_Z = 2;
 	public static final int SIZE_SCALE = 2;
 
+	// Command names
 	public static final String NAME_COLOR = "color";
+	public static final String NAME_COLOUR = "colour";
+	public static final String NAME_TRANSPARENCY = "alpha";
 
 	public static final String NAME_POINTS = "point";
 	public static final String NAME_LINE_STRIP = "line";
@@ -94,10 +102,17 @@ public class ModelProgramProcessor {
 				continue;
 			}
 
-			if ((NAME_COLOR.equals(statemant[0]) || "colour".equals(statemant[0])) && size >= 2) {
+			if ((NAME_COLOR.equals(statemant[0]) || NAME_COLOUR.equals(statemant[0])) && size >= SIZE_COLOR) {
 				if (statemant[1] instanceof Double) {
 					bufCommands.write(COLOR);
 					bufCommands.write(((Double)statemant[1]).intValue());
+				}
+
+			} else if (NAME_TRANSPARENCY.equals(statemant[0]) && size >= SIZE_TRANSPARENCY) {
+				if (statemant[1] instanceof Double) {
+					byte[] bytes = toByteArray(((Double)statemant[1]).floatValue());
+					bufCommands.write(TRANSPARENCY);
+					bufCommands.write(bytes, 0, bytes.length);
 				}
 
 			} else if (writeCommandAndVertices(statemant, NAME_POINTS, POINTS, SIZE_POINTS - 1, 256, bufCommands)) {
@@ -185,7 +200,7 @@ public class ModelProgramProcessor {
 			return modelProgram;
 		}
 
-		int indexCount = buf.getShort() & 0xFFFF;
+		int indexCount = buf.getShort() & MAX_VERTEX_INDEX;
 
 		for (int i  = 0; i < indexCount; i++) {
 			float x = buf.getFloat();
@@ -207,6 +222,13 @@ public class ModelProgramProcessor {
 				statement = new HashMap<Object, Object>();
 				statement.put(1, NAME_COLOR);
 				statement.put(2, buf.get() & 0xF);
+				modelProgram.add(statement);
+				break;
+			case TRANSPARENCY:
+				chaeckBufferRemaining(buf, 4);
+				statement = new HashMap<Object, Object>();
+				statement.put(1, NAME_TRANSPARENCY);
+				statement.put(2, buf.getFloat());
 				modelProgram.add(statement);
 				break;
 			case POINTS:
@@ -349,7 +371,7 @@ public class ModelProgramProcessor {
 
 		for (int i = 0; i < vertexCount; i++) {
 			Map<Integer, Object> vertex = new HashMap();
-			int index = inputBuf.getShort() & 0xFFFF;
+			int index = inputBuf.getShort() & MAX_VERTEX_INDEX;
 			Vec3f v = getVec3FromCache(index);
 
 			if (v == null) {
@@ -375,7 +397,7 @@ public class ModelProgramProcessor {
 	private int setVec3ToCache(Vec3f v) {
 		if (cacheVec3s.contains(v)) {
 			return cacheVec3s.indexOf(v);
-		} else if (cacheVec3s.size() < 0x10000) {
+		} else if (cacheVec3s.size() < MAX_VERTEX_INDEX + 1) {
 			cacheVec3s.add(v);
 			return cacheVec3s.size() - 1;
 		}
