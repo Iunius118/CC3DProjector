@@ -25,6 +25,7 @@ public class ModelProgramProcessor {
 	// Command byte codes
 	public static final byte COLOR = 0x20;
 	public static final byte TRANSPARENCY = 0x21;
+	public static final byte OSCILLATE = 0x28;
 
 	public static final byte POINTS = 0x30;
 	public static final byte LINE_STRIP = 0x38;
@@ -40,6 +41,7 @@ public class ModelProgramProcessor {
 	// Minimum statement size
 	public static final int SIZE_COLOR = 2;
 	public static final int SIZE_TRANSPARENCY = 2;
+	public static final int SIZE_OSCILLATE = 4;
 
 	public static final int SIZE_POINTS = 2;
 	public static final int SIZE_LINE_STRIP = 3;
@@ -56,6 +58,7 @@ public class ModelProgramProcessor {
 	public static final String NAME_COLOR = "color";
 	public static final String NAME_COLOUR = "colour";
 	public static final String NAME_TRANSPARENCY = "alpha";
+	public static final String NAME_OSCILLATE = "oscillate";
 
 	public static final String NAME_POINTS = "point";
 	public static final String NAME_LINE_STRIP = "line";
@@ -113,6 +116,23 @@ public class ModelProgramProcessor {
 					byte[] bytes = toByteArray(((Double)statemant[1]).floatValue());
 					bufCommands.write(TRANSPARENCY);
 					bufCommands.write(bytes, 0, bytes.length);
+				}
+
+			} else if (NAME_OSCILLATE.equals(statemant[0])) {
+				if (size >= SIZE_OSCILLATE) {
+					if (statemant[1] instanceof Double
+							&& statemant[2] instanceof Double
+							&& statemant[3] instanceof Double) {
+						bufCommands.write(OSCILLATE);
+						bufCommands.write(((Double)statemant[1]).intValue());
+						byte[] bytes = toByteArray(((Double)statemant[2]).floatValue());
+						bufCommands.write(bytes, 0, bytes.length);
+						bytes = toByteArray(((Double)statemant[3]).floatValue());
+						bufCommands.write(bytes, 0, bytes.length);
+					}
+				} else if (size == 1) {
+					bufCommands.write(OSCILLATE);
+					bufCommands.write(-1);
 				}
 
 			} else if (writeCommandAndVertices(statemant, NAME_POINTS, POINTS, SIZE_POINTS - 1, 256, bufCommands)) {
@@ -213,22 +233,36 @@ public class ModelProgramProcessor {
 		int commandCount = 0;
 
 		while (buf.remaining() > 0) {
-			Map statement;
+			Map<Integer, Object> statement;
 			byte commandCode = buf.get();
 
 			switch(commandCode) {
 			case COLOR:
 				chaeckBufferRemaining(buf, 1);
-				statement = new HashMap<Object, Object>();
+				statement = new HashMap();
 				statement.put(1, NAME_COLOR);
 				statement.put(2, buf.get() & 0xF);
 				modelProgram.add(statement);
 				break;
 			case TRANSPARENCY:
 				chaeckBufferRemaining(buf, 4);
-				statement = new HashMap<Object, Object>();
+				statement = new HashMap();
 				statement.put(1, NAME_TRANSPARENCY);
 				statement.put(2, buf.getFloat());
+				modelProgram.add(statement);
+				break;
+			case OSCILLATE:
+				chaeckBufferRemaining(buf, 1);
+				statement = new HashMap();
+				statement.put(1, NAME_OSCILLATE);
+				byte type = buf.get();
+
+				if (type >= 0) {
+					statement.put(2, (int)type);
+					statement.put(3, buf.getFloat());
+					statement.put(4, buf.getFloat());
+				}
+
 				modelProgram.add(statement);
 				break;
 			case POINTS:
@@ -251,21 +285,21 @@ public class ModelProgramProcessor {
 				break;
 			case ROTATE_X:
 				chaeckBufferRemaining(buf, 4);
-				statement = new HashMap<Object, Object>();
+				statement = new HashMap();
 				statement.put(1, NAME_ROTATE_X);
 				statement.put(2, buf.getFloat());
 				modelProgram.add(statement);
 				break;
 			case ROTATE_Y:
 				chaeckBufferRemaining(buf, 4);
-				statement = new HashMap<Object, Object>();
+				statement = new HashMap();
 				statement.put(1, NAME_ROTATE_Y);
 				statement.put(2, buf.getFloat());
 				modelProgram.add(statement);
 				break;
 			case ROTATE_Z:
 				chaeckBufferRemaining(buf, 4);
-				statement = new HashMap<Object, Object>();
+				statement = new HashMap();
 				statement.put(1, NAME_ROTATE_Z);
 				statement.put(2, buf.getFloat());
 				modelProgram.add(statement);

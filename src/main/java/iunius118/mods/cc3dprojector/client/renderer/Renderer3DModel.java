@@ -6,18 +6,22 @@ import java.util.Map;
 import org.lwjgl.opengl.GL11;
 
 import iunius118.mods.cc3dprojector.peripheral.ModelProgramProcessor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.client.model.animation.Animation;
 
 public class Renderer3DModel {
 
 	public static void doRender(RenderWorldLastEvent event, Vec3 pos, float yaw, List<Map<Integer, Object>> model, boolean isTurtle) {
 		Object obj;
 		Color color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+		Oscillator oscillator = new Oscillator(0, 0.0f, 1.0f);
+		boolean isOscillating = false;
 
 		Tessellator tessellator = Tessellator.getInstance();
 		WorldRenderer worldrenderer = tessellator.getWorldRenderer();
@@ -102,8 +106,35 @@ public class Renderer3DModel {
 
 				} else if (command.equals(ModelProgramProcessor.NAME_TRANSPARENCY) && statement.size() == ModelProgramProcessor.SIZE_TRANSPARENCY) {
 					float f = (Float)statement.get(Integer.valueOf(2));
-					color.a = f;
-					GlStateManager.color(color.r, color.g, color.b, color.a);
+
+					if (isOscillating) {
+						f *= oscillator.oscillate();
+						f += color.a;
+
+						if (f < 0) {
+							f = 0;
+						}
+
+						if (f > 1) {
+							f = 1;
+						}
+
+						isOscillating = false;
+					} else {
+						color.a = f;
+					}
+
+					GlStateManager.color(color.r, color.g, color.b, f);
+
+				} else if (command.equals(ModelProgramProcessor.NAME_OSCILLATE)) {
+					if (statement.size() == ModelProgramProcessor.SIZE_OSCILLATE) {
+						int type = (Integer)statement.get(Integer.valueOf(2));
+						float phase = (Float)statement.get(Integer.valueOf(3));
+						float period = (Float)statement.get(Integer.valueOf(4));
+						oscillator.setState(type, phase, period);
+					}
+
+					isOscillating = true;
 
 				} else if (command.equals(ModelProgramProcessor.NAME_POINTS) && statement.size() >= ModelProgramProcessor.SIZE_POINTS) {
 					worldrenderer.begin(GL11.GL_POINTS, DefaultVertexFormats.POSITION);
@@ -150,23 +181,65 @@ public class Renderer3DModel {
 
 				} else if (command.equals(ModelProgramProcessor.NAME_TRANSLATE) && statement.size() == ModelProgramProcessor.SIZE_TRANSLATE) {
 					Map<Integer, Float> p = (Map<Integer, Float>)statement.get(Integer.valueOf(2));
-					GlStateManager.translate((double)p.get(Integer.valueOf(1)), (double)p.get(Integer.valueOf(2)), (double)p.get(Integer.valueOf(3)));
+					double x = (double)p.get(Integer.valueOf(1));
+					double y = (double)p.get(Integer.valueOf(2));
+					double z = (double)p.get(Integer.valueOf(3));
+
+					if (isOscillating) {
+						double d = (double)oscillator.oscillate();
+						x *= d;
+						y *= d;
+						z *= d;
+						isOscillating = false;
+					}
+
+					GlStateManager.translate(x, y, z);
 
 				} else if (command.equals(ModelProgramProcessor.NAME_ROTATE_X) && statement.size() == ModelProgramProcessor.SIZE_ROTATE_X) {
 					float f = (Float)statement.get(Integer.valueOf(2));
+
+					if (isOscillating) {
+						f *= oscillator.oscillate();
+						isOscillating = false;
+					}
+
 					GlStateManager.rotate(f, 1.0f, 0.0f, 0.0f);
 
 				} else if (command.equals(ModelProgramProcessor.NAME_ROTATE_Y) && statement.size() == ModelProgramProcessor.SIZE_ROTATE_Y) {
 					float f = (Float)statement.get(Integer.valueOf(2));
+
+					if (isOscillating) {
+						f *= oscillator.oscillate();
+						isOscillating = false;
+					}
+
 					GlStateManager.rotate(f, 0.0f, 1.0f, 0.0f);
 
 				} else if (command.equals(ModelProgramProcessor.NAME_ROTATE_Z) && statement.size() == ModelProgramProcessor.SIZE_ROTATE_Z) {
 					float f = (Float)statement.get(Integer.valueOf(2));
+
+					if (isOscillating) {
+						f *= oscillator.oscillate();
+						isOscillating = false;
+					}
+
 					GlStateManager.rotate(f, 0.0f, 0.0f, 1.0f);
 
 				} else if (command.equals(ModelProgramProcessor.NAME_SCALE) && statement.size() == ModelProgramProcessor.SIZE_SCALE) {
 					Map<Integer, Float> p = (Map<Integer, Float>)statement.get(Integer.valueOf(2));
-					GlStateManager.scale((double)p.get(Integer.valueOf(1)), (double)p.get(Integer.valueOf(2)), (double)p.get(Integer.valueOf(3)));
+					double x = (double)p.get(Integer.valueOf(1));
+					double y = (double)p.get(Integer.valueOf(2));
+					double z = (double)p.get(Integer.valueOf(3));
+
+					if (isOscillating) {
+						double d = (double)oscillator.oscillate();
+						x *= d;
+						y *= d;
+						z *= d;
+						isOscillating = false;
+					}
+
+					GlStateManager.scale(x, y, z);
 				}
 			}
 		}
@@ -177,6 +250,7 @@ public class Renderer3DModel {
 	}
 
 	public static class Color {
+
 		public float r;
 		public float g;
 		public float b;
@@ -201,6 +275,66 @@ public class Renderer3DModel {
 			g = green;
 			b = blue;
 		}
+
+	}
+
+	public static class Oscillator {
+
+		private int _type;
+		private float _phase;
+		private float _period;
+
+		public Oscillator(int type, float phase, float period) {
+			setState(type, phase, period);
+		}
+
+		public void setState(int type, float phase, float period) {
+			_type = type;
+			_phase = phase;
+			_period = period;
+
+			if (_phase >= 1 || _phase < 0) {
+				_phase = 0;
+			}
+
+			if (_period < 0) {
+				_period = 1;
+			}
+		}
+
+		public float oscillate() {
+			float time = Animation.getWorldTime(Minecraft.getMinecraft().theWorld, Animation.getPartialTickTime()) + _phase * _period;
+			float ret = 0.0f;
+
+			switch (_type) {
+			case 0:	// linear or sawtooth
+				ret = (time % _period) * 2 / _period - 1;
+				break;
+
+			case 1:	// sin
+				ret = (float)Math.sin((time % _period) * 2 * (float)Math.PI / _period);
+				break;
+
+			case 2:	// square
+				ret = (time % _period) * 2 / _period - 1;
+				if (ret < 0) {
+					ret = -1;
+				} else {
+					ret = 1;
+				}
+				break;
+
+			case 3:	// triangle
+				ret = (time % _period) * 4 / _period - 1;
+				if (ret > 1) {
+					ret = 2 - ret;
+				}
+				break;
+			}
+
+			return ret;
+		}
+
 	}
 
 }

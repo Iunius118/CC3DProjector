@@ -55,7 +55,7 @@ public class CC3DProjector {
 	public static final String MOD_ID = "cc3dprojector";
 	public static final String MOD_NAME = "CC3DProjector";
 	public static final String MOD_VERSION = "%modVersion%";
-	public static final String MOD_DEPENDENCIES = "after:ComputerCraft";
+	public static final String MOD_DEPENDENCIES = "required-after:ComputerCraft";
 
 	public static Block block3DProjector;
 	public static final String NAME_BLOCK_3D_PROJECTOR = "3dprojector";
