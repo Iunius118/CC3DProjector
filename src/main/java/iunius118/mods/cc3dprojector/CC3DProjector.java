@@ -26,7 +26,10 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.ModelBakeEvent;
@@ -70,6 +73,14 @@ public class CC3DProjector {
 		block3DProjector = new Block3DProjector().setUnlocalizedName(NAME_BLOCK_3D_PROJECTOR);
 		GameRegistry.registerBlock(block3DProjector, NAME_BLOCK_3D_PROJECTOR);
 		GameRegistry.registerTileEntity(TileEntity3DProjector.class, NAME_BLOCK_3D_PROJECTOR);
+
+		GameRegistry.addRecipe(new ItemStack(block3DProjector),
+			       "#d#",
+			       "#e#",
+			       "###",
+			       '#', Blocks.stone,
+			       'd', Items.diamond,
+			       'e', Items.ender_eye );
 
 		ComputerCraftAPI.registerPeripheralProvider(new PeripheralProvider());
 		ComputerCraftAPI.registerTurtleUpgrade(turtle3DProjector);

@@ -293,12 +293,12 @@ public class Renderer3DModel {
 			_phase = phase;
 			_period = period;
 
-			if (_phase >= 1 || _phase < 0) {
-				_phase = 0;
+			if (_phase >= 1.0f || _phase < 0.0f) {
+				_phase = 0.0f;
 			}
 
-			if (_period < 0) {
-				_period = 1;
+			if (_period <= 0.0f) {
+				_period = 1.0f;
 			}
 		}
 
@@ -308,26 +308,26 @@ public class Renderer3DModel {
 
 			switch (_type) {
 			case 0:	// linear or sawtooth
-				ret = (time % _period) * 2 / _period - 1;
+				ret = (time % _period) * 2.0f / _period - 1.0f;
 				break;
 
 			case 1:	// sin
-				ret = (float)Math.sin((time % _period) * 2 * (float)Math.PI / _period);
+				ret = (float)Math.sin((time % _period) * 2.0f * (float)Math.PI / _period);
 				break;
 
 			case 2:	// square
-				ret = (time % _period) * 2 / _period - 1;
-				if (ret < 0) {
-					ret = -1;
+				ret = (time % _period) * 2.0f / _period - 1.0f;
+				if (ret < 0.0f) {
+					ret = -1.0f;
 				} else {
-					ret = 1;
+					ret = 1.0f;
 				}
 				break;
 
 			case 3:	// triangle
-				ret = (time % _period) * 4 / _period - 1;
-				if (ret > 1) {
-					ret = 2 - ret;
+				ret = (time % _period) * 4.0f / _period - 1.0f;
+				if (ret > 1.0f) {
+					ret = 2.0f - ret;
 				}
 				break;
 			}
