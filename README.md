@@ -3,6 +3,15 @@ for ComputerCraft 1.79 (Minecraft 1.8.9 with Forge)
 
 + **Download:** [[1.8.9]CC3DProjector-0.0.1.jar (from MediaFire)](http://www.mediafire.com/file/858qvuzj4uc966j/%5B1.8.9%5DCC3DProjector-0.0.1.jar)
 
+## Recipe
+
+e = Eye of Ender, d = Diamond, # = Stone
+```
+#d#
+#e#
+###
+```
+
 ## Lua sample code
 ```Lua
 local projector = peripheral.find( "3d_projector" )
