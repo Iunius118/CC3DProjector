@@ -105,9 +105,9 @@ tVertex = { nX, nY, nZ }
 * nPhase ( 0.0 <= nPhase < 1.0 ): Phase
 * nPeriod ( 0.0 < nPeriod ): Wave period in seconds
 * Generated amplitude is -1 to +1
-* This command works only with transformation commands or alpha command
+* This command works only with transformation command or alpha command
 
-#### With Transformation commands
+#### With Transformation command
 ```Lua
 { ... , { "oscillate", nType, nPhase, nPeriod }, { "translate", { nX, nY, nZ } }, ... }
 -- means { "translate", { nX * oscillate(), nY * oscillate(), nZ * oscillate() } }
@@ -119,7 +119,7 @@ tVertex = { nX, nY, nZ }
 -- means { "scale", { nX * oscillate(), nY * oscillate(), nZ * oscillate() } }
 ```
 
-#### With Alpha commands
+#### With Alpha command
 ```Lua
 { ... , { "oscillate", nType, nPhase, nPeriod }, { "alpha", nAlpha }, ... }
 -- means { "alpha", nAlpha * oscillate() + nConstAlpha }
