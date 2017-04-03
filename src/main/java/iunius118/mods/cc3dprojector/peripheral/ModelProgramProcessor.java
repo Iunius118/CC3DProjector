@@ -307,7 +307,7 @@ public class ModelProgramProcessor {
 			}
 		}
 
-		System.out.println("Model decompiled");
+		// System.out.println("Model decompiled");
 
 		return modelProgram;
 	}

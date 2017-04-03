@@ -55,7 +55,7 @@ public class TileEntity3DProjector extends TileEntity implements ITickable {
 
 	@Override
 	public Packet getDescriptionPacket() {
-		System.out.println("getDescriptionPacket");
+		// System.out.println("getDescriptionPacket");
 		NBTTagCompound compound = new NBTTagCompound();
 		this.writeToNBT(compound);
 		return new S35PacketUpdateTileEntity(this.pos, this.getBlockMetadata(), compound);
@@ -63,7 +63,7 @@ public class TileEntity3DProjector extends TileEntity implements ITickable {
 
 	@Override
 	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
-		System.out.println("onDataPacket");
+		// System.out.println("onDataPacket");
 		this.readFromNBT(pkt.getNbtCompound());
 	}
 

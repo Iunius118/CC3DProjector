@@ -70,7 +70,7 @@ public class CC3DProjector {
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
-		block3DProjector = new Block3DProjector().setUnlocalizedName(NAME_BLOCK_3D_PROJECTOR);
+		block3DProjector = new Block3DProjector().setUnlocalizedName(MOD_ID + ":" + NAME_BLOCK_3D_PROJECTOR);
 		GameRegistry.registerBlock(block3DProjector, NAME_BLOCK_3D_PROJECTOR);
 		GameRegistry.registerTileEntity(TileEntity3DProjector.class, NAME_BLOCK_3D_PROJECTOR);
 

@@ -66,7 +66,7 @@ public class Turtle3DProjector implements ITurtleUpgrade {
 
 	@Override
 	public String getUnlocalisedAdjective() {
-		return "upgrade." + CC3DProjector.NAME_BLOCK_3D_PROJECTOR + ".adjective";
+		return "upgrade." + CC3DProjector.MOD_ID + ":" + CC3DProjector.NAME_BLOCK_3D_PROJECTOR + ".adjective";
 	}
 
 	@Override
