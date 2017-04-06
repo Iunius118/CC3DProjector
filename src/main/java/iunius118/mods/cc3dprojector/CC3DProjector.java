@@ -60,6 +60,9 @@ public class CC3DProjector {
 	public static final String MOD_VERSION = "%modVersion%";
 	public static final String MOD_DEPENDENCIES = "required-after:ComputerCraft";
 
+	@Mod.Instance(MOD_ID)
+	public static CC3DProjector INSTANCE;
+
 	public static Block block3DProjector;
 	public static final String NAME_BLOCK_3D_PROJECTOR = "3dprojector";
 
@@ -146,7 +149,7 @@ public class CC3DProjector {
 			ITurtleAccess turtle = entry.getValue().getValue();
 
 			if (id.type == PeripheralType.UPGRADE && turtle == null) {
-				return;
+				continue;
 			}
 
 			// System.out.println(id.type + " pos:" + id.pos +  " id:" + id.id + " side:" + id.turtleSide + " ta:" + turtle);

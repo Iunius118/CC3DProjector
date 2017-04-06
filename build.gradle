@@ -20,7 +20,7 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "2.0.2"
 }
 */
-version = "0.0.1"
+version = "0.0.2"
 group= "iunius118.mods.cc3dprojector" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "[1.8.9]CC3DProjector"
 

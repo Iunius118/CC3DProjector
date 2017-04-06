@@ -245,7 +245,7 @@ public class Renderer3DModel {
 		}
 
 		GlStateManager.enableTexture2D();
-		GlStateManager.enableLighting();
+		// GlStateManager.enableLighting();
 		GlStateManager.popMatrix();
 	}
 
