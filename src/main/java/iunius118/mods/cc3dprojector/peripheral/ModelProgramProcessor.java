@@ -24,7 +24,7 @@ public class ModelProgramProcessor {
 
 	// Command byte codes
 	public static final byte COLOR = 0x20;
-	public static final byte TRANSPARENCY = 0x21;
+	public static final byte OPACITY = 0x21;
 	public static final byte OSCILLATE = 0x28;
 
 	public static final byte POINTS = 0x30;
@@ -40,7 +40,7 @@ public class ModelProgramProcessor {
 
 	// Minimum statement size
 	public static final int SIZE_COLOR = 2;
-	public static final int SIZE_TRANSPARENCY = 2;
+	public static final int SIZE_OPACITY = 2;
 	public static final int SIZE_OSCILLATE = 4;
 
 	public static final int SIZE_POINTS = 2;
@@ -57,7 +57,7 @@ public class ModelProgramProcessor {
 	// Command names
 	public static final String NAME_COLOR = "color";
 	public static final String NAME_COLOUR = "colour";
-	public static final String NAME_TRANSPARENCY = "alpha";
+	public static final String NAME_OPACITY = "alpha";
 	public static final String NAME_OSCILLATE = "oscillate";
 
 	public static final String NAME_POINTS = "point";
@@ -71,6 +71,9 @@ public class ModelProgramProcessor {
 	public static final String NAME_ROTATE_Z = "rotateZ";
 	public static final String NAME_SCALE = "scale";
 
+	/**
+	 * Compile HashMap (from LuaTable) to byte array
+	 *  */
 	public byte[] compile(Map modelProgram) throws LuaException {
 		cacheVec3s = new ArrayList();
 		ByteArrayOutputStream bufVertexIndex = new ByteArrayOutputStream();
@@ -81,7 +84,7 @@ public class ModelProgramProcessor {
 				break;
 			}
 
-			Object value = modelProgram.get(Double.valueOf(i + 1));
+			Object value = modelProgram.get(Double.valueOf(i + 1));	// get Map of statement
 
 			if (!(value instanceof Map)) {
 				break;
@@ -90,7 +93,7 @@ public class ModelProgramProcessor {
 			Map map = (Map)value;
 			List<Object> list = new ArrayList();
 
-			for (int j = 0; j < map.size(); j++ ) {
+			for (int j = 0; j < map.size(); j++ ) {	// Convert statement map to List
 				if (map.containsKey(Double.valueOf(j + 1))) {
 					list.add(map.get(Double.valueOf(j + 1)));
 				} else {
@@ -98,23 +101,24 @@ public class ModelProgramProcessor {
 				}
 			}
 
-			Object[] statemant = list.toArray();
+			Object[] statemant = list.toArray();	// Convert statement list to array
 			int size = statemant.length;
 
 			if (size < 1) {
 				continue;
 			}
 
+			// Convert statement to binary code
 			if ((NAME_COLOR.equals(statemant[0]) || NAME_COLOUR.equals(statemant[0])) && size >= SIZE_COLOR) {
 				if (statemant[1] instanceof Double) {
 					bufCommands.write(COLOR);
 					bufCommands.write(((Double)statemant[1]).intValue());
 				}
 
-			} else if (NAME_TRANSPARENCY.equals(statemant[0]) && size >= SIZE_TRANSPARENCY) {
+			} else if (NAME_OPACITY.equals(statemant[0]) && size >= SIZE_OPACITY) {
 				if (statemant[1] instanceof Double) {
 					byte[] bytes = toByteArray(((Double)statemant[1]).floatValue());
-					bufCommands.write(TRANSPARENCY);
+					bufCommands.write(OPACITY);
 					bufCommands.write(bytes, 0, bytes.length);
 				}
 
@@ -173,8 +177,10 @@ public class ModelProgramProcessor {
 
 		}
 
+		// Begin to write binary codes to byte buffer
 		bufVertexIndex.write(VERSION);
 
+		// Write vertex list
 		byte[] bytes = toByteArray((short)cacheVec3s.size());
 		bufVertexIndex.write(bytes, 0, bytes.length);
 
@@ -190,15 +196,15 @@ public class ModelProgramProcessor {
 			bufVertexIndex.write(bf, 0, bf.length);
 		}
 
+		// Write command codes
 		byte[] bsize = toByteArray(bufCommands.size());
 		bufVertexIndex.write(bsize, 0, bsize.length);
 
 		byte[] byteCommands = bufCommands.toByteArray();
 		bufVertexIndex.write(byteCommands, 0, byteCommands.length);
 
+		// System.out.println("buf-size: " + bufVertexIndex.size());
 		/*
-		System.out.println("buf-size: " + bufVertexIndex.size());
-
 		System.out.print("{");
 		for (byte b : bufVertexIndex.toByteArray()) {
 			System.out.printf("%02X,", b);
@@ -209,6 +215,9 @@ public class ModelProgramProcessor {
 		return bufVertexIndex.toByteArray();
 	}
 
+	/**
+	 * Decompile byte array to HashMap (for LuaTable)
+	 *  */
 	public List<Map<Integer, Object>> decompile(byte[] compiledProgram) throws LuaException {
 		cacheVec3s = new ArrayList();
 		ByteBuffer buf = ByteBuffer.wrap(compiledProgram);
@@ -220,6 +229,7 @@ public class ModelProgramProcessor {
 			return modelProgram;
 		}
 
+		// Read vertex list
 		int indexCount = buf.getShort() & MAX_VERTEX_INDEX;
 
 		for (int i  = 0; i < indexCount; i++) {
@@ -232,6 +242,7 @@ public class ModelProgramProcessor {
 		int size = buf.getInt();
 		int commandCount = 0;
 
+		// Convert binary code to statement
 		while (buf.remaining() > 0) {
 			Map<Integer, Object> statement;
 			byte commandCode = buf.get();
@@ -244,10 +255,10 @@ public class ModelProgramProcessor {
 				statement.put(2, buf.get() & 0xF);
 				modelProgram.add(statement);
 				break;
-			case TRANSPARENCY:
+			case OPACITY:
 				chaeckBufferRemaining(buf, 4);
 				statement = new HashMap();
-				statement.put(1, NAME_TRANSPARENCY);
+				statement.put(1, NAME_OPACITY);
 				statement.put(2, buf.getFloat());
 				modelProgram.add(statement);
 				break;
@@ -326,6 +337,7 @@ public class ModelProgramProcessor {
 		}
 
 		compressor.end();
+		// System.out.println("deflated-size: " + ret.size());
 		return ret.toByteArray();
 	}
 
@@ -351,16 +363,20 @@ public class ModelProgramProcessor {
 		return ret.toByteArray();
 	}
 
-	private boolean writeCommandAndVertices(Object[] statemant, String command, byte commandCode, int minVertexCount, int maxVertexCount, ByteArrayOutputStream bufCommands) throws LuaException {
+	/**
+	 * Convert statement to binary code and Index vertices to list and Write byte buffer
+	 *  */
+	private boolean writeCommandAndVertices(Object[] statemant, String commandName, byte commandCode, int minVertexCount, int maxVertexCount, ByteArrayOutputStream bufCommands) throws LuaException {
 		int size = statemant.length;
 
-		if (command.equals(statemant[0]) && size >= 2) {
+		if (commandName.equals(statemant[0]) && size >= 2) {
 			List<Integer> vertexIndices = new ArrayList();
 
-			for (int j = 1; j < size && (j - 1) < maxVertexCount; j++) {
+			for (int j = 1; j < size && (j - 1) < maxVertexCount; j++) {	// Get vertices up to maxVertexCount from statement
 				if (statemant[j] instanceof Map) {
 					Map m = (Map)statemant[j];
 
+					// Index vertices to list
 					if (m.size() >= 3
 							&& m.get(Double.valueOf(1)) instanceof Double
 							&& m.get(Double.valueOf(2)) instanceof Double
@@ -373,6 +389,7 @@ public class ModelProgramProcessor {
 				}
 			}
 
+			// Convert statement to binary code
 			if (vertexIndices.size() >= minVertexCount) {
 				bufCommands.write(commandCode);
 				bufCommands.write(vertexIndices.size());
@@ -382,6 +399,7 @@ public class ModelProgramProcessor {
 						throw new LuaException("CC3DProjector: Vertex buffer overflow");
 					}
 
+					// Write byte buffer
 					byte[] bytes = toByteArray((short)index);
 					bufCommands.write(bytes, 0, bytes.length);
 				}
@@ -394,6 +412,9 @@ public class ModelProgramProcessor {
 		return false;
 	}
 
+	/**
+	 * Convert binary code from byte buffer to Map of statement
+	 *  */
 	private Map<Integer, Object> readCommandAndVertices(ByteBuffer inputBuf, String command) throws LuaException {
 		chaeckBufferRemaining(inputBuf, 1);
 
@@ -403,6 +424,7 @@ public class ModelProgramProcessor {
 
 		chaeckBufferRemaining(inputBuf, vertexCount * 2);
 
+		// Get vertex elements from vertex list and Add vertices to statement
 		for (int i = 0; i < vertexCount; i++) {
 			Map<Integer, Object> vertex = new HashMap();
 			int index = inputBuf.getShort() & MAX_VERTEX_INDEX;

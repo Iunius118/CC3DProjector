@@ -118,6 +118,9 @@ public class Peripheral3DProjector implements IPeripheral {
 		return false;
 	}
 
+	/**
+	 * Write model binary code to NBT and Change peripheral state
+	 *  */
 	private void setModelProgram(byte[] buf, int computerID) {
 		NBTTagCompound tag = null;
 
@@ -141,6 +144,9 @@ public class Peripheral3DProjector implements IPeripheral {
 		}
 	}
 
+	/**
+	 * Read model binary code from NBT
+	 *  */
 	private byte[] getModelProgram() {
 		byte[] buf = null;
 		NBTTagCompound tag = null;
@@ -161,6 +167,9 @@ public class Peripheral3DProjector implements IPeripheral {
 		return null;
 	}
 
+	/**
+	 * Clear model binary code in NBT and Change peripheral state
+	 *  */
 	private void clearModelProgram() {
 		NBTTagCompound tag = null;
 

@@ -142,8 +142,9 @@ public class CC3DProjector {
 		double playerY = player.prevPosY + (player.posY - player.prevPosY) * event.partialTicks;
 		double playerZ = player.prevPosZ + (player.posZ - player.prevPosZ) * event.partialTicks;
 
-		Map<Peripheral3DProjector.Identification, Pair<List<Map<Integer, Object>>, ITurtleAccess>> queue3DModelCopy = new HashMap();
+		Map<Peripheral3DProjector.Identification, Pair<List<Map<Integer, Object>>, ITurtleAccess>> queue3DModelCopy = new HashMap();	 // Model cache for Turtle Upgrades
 
+		// Render models from queue
 		for(Map.Entry<Peripheral3DProjector.Identification, Pair<List<Map<Integer, Object>>, ITurtleAccess>> entry : queue3DModel.entrySet()) {
 			Peripheral3DProjector.Identification id = entry.getKey();
 			ITurtleAccess turtle = entry.getValue().getValue();
@@ -158,6 +159,7 @@ public class CC3DProjector {
 			Vec3 pos;
 			float yaw = 0;
 
+			// Get visual position
 			if (turtle == null) {
 				pos = new Vec3(id.pos).subtract(playerX, playerY, playerZ);
 			} else {
@@ -165,13 +167,14 @@ public class CC3DProjector {
 				yaw = turtle.getVisualYaw(event.partialTicks);
 			}
 
-			Renderer3DModel.doRender(event, pos, yaw, model, turtle != null);
+			Renderer3DModel.doRender(event, pos, yaw, model, turtle != null);	// Render model
 
-			if (id.type == PeripheralType.UPGRADE) {
+			if (id.type == PeripheralType.UPGRADE) {	// Remain models of active Turtle Upgrades
 				queue3DModelCopy.put(id, Pair.<List<Map<Integer, Object>>, ITurtleAccess>of(model, null));
 			}
 		}
 
+		// Flip model queue to remaining models of active Turtle Upgrades
 		queue3DModel = queue3DModelCopy;
 	}
 

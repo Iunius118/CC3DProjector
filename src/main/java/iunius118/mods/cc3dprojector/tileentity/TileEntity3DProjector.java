@@ -18,7 +18,7 @@ import net.minecraft.world.World;
 
 public class TileEntity3DProjector extends TileEntity implements ITickable {
 
-	public List<Map<Integer, Object>> model = null;
+	public List<Map<Integer, Object>> model = null;	// Model cache
 
 	public TileEntity3DProjector() {
 
@@ -32,10 +32,12 @@ public class TileEntity3DProjector extends TileEntity implements ITickable {
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
 
+		// Read model from NBT
 		NBTTagCompound tag = this.getTileData();
 		byte[] buf = tag.getByteArray(Peripheral3DProjector.TAG_MODEL);
 
 		if (buf.length > 0) {
+			// Decompile and Cache model
 			ModelProgramProcessor processor = new ModelProgramProcessor();
 			byte[] buf2 = processor.inflate(buf);
 			try {

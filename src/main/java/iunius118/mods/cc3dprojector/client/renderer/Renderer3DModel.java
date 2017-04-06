@@ -43,69 +43,70 @@ public class Renderer3DModel {
 		}
 
 		for (Map<Integer, Object> statement : model) {
-			obj = statement.get(Integer.valueOf(1));
+			obj = statement.get(1);
 
 			if (obj instanceof String) {
 				String command = (String)obj;
 
+				// Render each command
 				if (command.equals(ModelProgramProcessor.NAME_COLOR) && statement.size() == ModelProgramProcessor.SIZE_COLOR) {
-					int c = (Integer)statement.get(Integer.valueOf(2));
+					int c = (Integer)statement.get(2);
 
 					switch(c) {
-					case 0:
+					case 0: 	// White
 						color.setColor(0.941f, 0.941f, 0.941f);
 						break;
-					case 1:
+					case 1: 	// Orange
 						color.setColor(0.949f, 0.698f, 0.2f);
 						break;
-					case 2:
+					case 2: 	// Magenta
 						color.setColor(0.898f, 0.498f, 0.847f);
 						break;
-					case 3:
+					case 3: 	// LightBlue
 						color.setColor(0.6f, 0.698f, 0.949f);
 						break;
-					case 4:
+					case 4: 	// Yellow
 						color.setColor(0.871f, 0.871f, 0.424f);
 						break;
-					case 5:
+					case 5: 	// Lime
 						color.setColor(0.498f, 0.8f, 0.098f);
 						break;
-					case 6:
+					case 6: 	// Pink
 						color.setColor(0.949f, 0.698f, 0.8f);
 						break;
-					case 7:
+					case 7: 	// Gray
 						color.setColor(0.298f, 0.298f, 0.298f);
 						break;
-					case 8:
+					case 8: 	// LightGray
 						color.setColor(0.6f, 0.6f, 0.6f);
 						break;
-					case 9:
+					case 9: 	// Cyan
 						color.setColor(0.298f, 0.6f, 0.698f);
 						break;
-					case 10:
+					case 10:	// Purple
 						color.setColor(0.698f, 0.4f, 0.898f);
 						break;
-					case 11:
+					case 11:	// Blue
 						color.setColor(0.2f, 0.4f, 0.8f);
 						break;
-					case 12:
+					case 12:	// Brown
 						color.setColor(0.498f, 0.4f, 0.298f);
 						break;
-					case 13:
+					case 13:	// Green
 						color.setColor(0.341f, 0.651f, 0.306f);
 						break;
-					case 14:
+					case 14:	// Red
 						color.setColor(0.8f, 0.298f, 0.298f);
 						break;
-					case 15:
+					case 15:	// Black
 						color.setColor(0.098f, 0.098f, 0.098f);
 						break;
 					}
 
 					GlStateManager.color(color.r, color.g, color.b, color.a);
 
-				} else if (command.equals(ModelProgramProcessor.NAME_TRANSPARENCY) && statement.size() == ModelProgramProcessor.SIZE_TRANSPARENCY) {
-					float f = (Float)statement.get(Integer.valueOf(2));
+				} else if (command.equals(ModelProgramProcessor.NAME_OPACITY) && statement.size() == ModelProgramProcessor.SIZE_OPACITY) {
+					float f = (Float)statement.get(2);
 
 					if (isOscillating) {
 						f *= oscillator.oscillate();
@@ -128,9 +129,9 @@ public class Renderer3DModel {
 
 				} else if (command.equals(ModelProgramProcessor.NAME_OSCILLATE)) {
 					if (statement.size() == ModelProgramProcessor.SIZE_OSCILLATE) {
-						int type = (Integer)statement.get(Integer.valueOf(2));
-						float phase = (Float)statement.get(Integer.valueOf(3));
-						float period = (Float)statement.get(Integer.valueOf(4));
+						int type = (Integer)statement.get(2);
+						float phase = (Float)statement.get(3);
+						float period = (Float)statement.get(4);
 						oscillator.setState(type, phase, period);
 					}
 
@@ -140,8 +141,8 @@ public class Renderer3DModel {
 					worldrenderer.begin(GL11.GL_POINTS, DefaultVertexFormats.POSITION);
 
 					for (int i = 1; i < statement.size(); i++) {
-						Map<Integer, Float> p = (Map<Integer, Float>)statement.get(Integer.valueOf(i + 1));
-						worldrenderer.pos((double)p.get(Integer.valueOf(1)), (double)p.get(Integer.valueOf(2)), (double)p.get(Integer.valueOf(3))).endVertex();
+						Map<Integer, Float> p = (Map<Integer, Float>)statement.get(i + 1);
+						worldrenderer.pos((double)p.get(1), (double)p.get(2), (double)p.get(3)).endVertex();
 					}
 
 					tessellator.draw();
@@ -150,8 +151,8 @@ public class Renderer3DModel {
 					worldrenderer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
 
 					for (int i = 1; i < statement.size(); i++) {
-						Map<Integer, Float> p = (Map<Integer, Float>)statement.get(Integer.valueOf(i + 1));
-						worldrenderer.pos((double)p.get(Integer.valueOf(1)), (double)p.get(Integer.valueOf(2)), (double)p.get(Integer.valueOf(3))).endVertex();
+						Map<Integer, Float> p = (Map<Integer, Float>)statement.get(i + 1);
+						worldrenderer.pos((double)p.get(1), (double)p.get(2), (double)p.get(3)).endVertex();
 					}
 
 					tessellator.draw();
@@ -160,30 +161,30 @@ public class Renderer3DModel {
 					worldrenderer.begin(GL11.GL_LINE_LOOP, DefaultVertexFormats.POSITION);
 
 					for (int i = 1; i < statement.size(); i++) {
-						Map<Integer, Float> p = (Map<Integer, Float>)statement.get(Integer.valueOf(i + 1));
-						worldrenderer.pos((double)p.get(Integer.valueOf(1)), (double)p.get(Integer.valueOf(2)), (double)p.get(Integer.valueOf(3))).endVertex();
+						Map<Integer, Float> p = (Map<Integer, Float>)statement.get(i + 1);
+						worldrenderer.pos((double)p.get(1), (double)p.get(2), (double)p.get(3)).endVertex();
 					}
 
 					tessellator.draw();
 
 				} else if (command.equals(ModelProgramProcessor.NAME_FACE) && statement.size() == ModelProgramProcessor.SIZE_FACE) {
-					Map<Integer, Float> p1 = (Map<Integer, Float>)statement.get(Integer.valueOf(2));
-					Map<Integer, Float> p2 = (Map<Integer, Float>)statement.get(Integer.valueOf(3));
-					Map<Integer, Float> p3 = (Map<Integer, Float>)statement.get(Integer.valueOf(4));
-					Map<Integer, Float> p4 = (Map<Integer, Float>)statement.get(Integer.valueOf(5));
+					Map<Integer, Float> p1 = (Map<Integer, Float>)statement.get(2);
+					Map<Integer, Float> p2 = (Map<Integer, Float>)statement.get(3);
+					Map<Integer, Float> p3 = (Map<Integer, Float>)statement.get(4);
+					Map<Integer, Float> p4 = (Map<Integer, Float>)statement.get(5);
 
 					worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
-					worldrenderer.pos((double)p1.get(Integer.valueOf(1)), (double)p1.get(Integer.valueOf(2)), (double)p1.get(Integer.valueOf(3))).endVertex();
-					worldrenderer.pos((double)p2.get(Integer.valueOf(1)), (double)p2.get(Integer.valueOf(2)), (double)p2.get(Integer.valueOf(3))).endVertex();
-					worldrenderer.pos((double)p3.get(Integer.valueOf(1)), (double)p3.get(Integer.valueOf(2)), (double)p3.get(Integer.valueOf(3))).endVertex();
-					worldrenderer.pos((double)p4.get(Integer.valueOf(1)), (double)p4.get(Integer.valueOf(2)), (double)p4.get(Integer.valueOf(3))).endVertex();
+					worldrenderer.pos((double)p1.get(1), (double)p1.get(2), (double)p1.get(3)).endVertex();
+					worldrenderer.pos((double)p2.get(1), (double)p2.get(2), (double)p2.get(3)).endVertex();
+					worldrenderer.pos((double)p3.get(1), (double)p3.get(2), (double)p3.get(3)).endVertex();
+					worldrenderer.pos((double)p4.get(1), (double)p4.get(2), (double)p4.get(3)).endVertex();
 					tessellator.draw();
 
 				} else if (command.equals(ModelProgramProcessor.NAME_TRANSLATE) && statement.size() == ModelProgramProcessor.SIZE_TRANSLATE) {
-					Map<Integer, Float> p = (Map<Integer, Float>)statement.get(Integer.valueOf(2));
-					double x = (double)p.get(Integer.valueOf(1));
-					double y = (double)p.get(Integer.valueOf(2));
-					double z = (double)p.get(Integer.valueOf(3));
+					Map<Integer, Float> p = (Map<Integer, Float>)statement.get(2);
+					double x = (double)p.get(1);
+					double y = (double)p.get(2);
+					double z = (double)p.get(3);
 
 					if (isOscillating) {
 						double d = (double)oscillator.oscillate();
@@ -196,7 +197,7 @@ public class Renderer3DModel {
 					GlStateManager.translate(x, y, z);
 
 				} else if (command.equals(ModelProgramProcessor.NAME_ROTATE_X) && statement.size() == ModelProgramProcessor.SIZE_ROTATE_X) {
-					float f = (Float)statement.get(Integer.valueOf(2));
+					float f = (Float)statement.get(2);
 
 					if (isOscillating) {
 						f *= oscillator.oscillate();
@@ -206,7 +207,7 @@ public class Renderer3DModel {
 					GlStateManager.rotate(f, 1.0f, 0.0f, 0.0f);
 
 				} else if (command.equals(ModelProgramProcessor.NAME_ROTATE_Y) && statement.size() == ModelProgramProcessor.SIZE_ROTATE_Y) {
-					float f = (Float)statement.get(Integer.valueOf(2));
+					float f = (Float)statement.get(2);
 
 					if (isOscillating) {
 						f *= oscillator.oscillate();
@@ -216,7 +217,7 @@ public class Renderer3DModel {
 					GlStateManager.rotate(f, 0.0f, 1.0f, 0.0f);
 
 				} else if (command.equals(ModelProgramProcessor.NAME_ROTATE_Z) && statement.size() == ModelProgramProcessor.SIZE_ROTATE_Z) {
-					float f = (Float)statement.get(Integer.valueOf(2));
+					float f = (Float)statement.get(2);
 
 					if (isOscillating) {
 						f *= oscillator.oscillate();
@@ -226,10 +227,10 @@ public class Renderer3DModel {
 					GlStateManager.rotate(f, 0.0f, 0.0f, 1.0f);
 
 				} else if (command.equals(ModelProgramProcessor.NAME_SCALE) && statement.size() == ModelProgramProcessor.SIZE_SCALE) {
-					Map<Integer, Float> p = (Map<Integer, Float>)statement.get(Integer.valueOf(2));
-					double x = (double)p.get(Integer.valueOf(1));
-					double y = (double)p.get(Integer.valueOf(2));
-					double z = (double)p.get(Integer.valueOf(3));
+					Map<Integer, Float> p = (Map<Integer, Float>)statement.get(2);
+					double x = (double)p.get(1);
+					double y = (double)p.get(2);
+					double z = (double)p.get(3);
 
 					if (isOscillating) {
 						double d = (double)oscillator.oscillate();

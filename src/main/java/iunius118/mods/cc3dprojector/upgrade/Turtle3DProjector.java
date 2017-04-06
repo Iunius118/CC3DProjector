@@ -102,9 +102,11 @@ public class Turtle3DProjector implements ITurtleUpgrade {
 			Peripheral3DProjector.Identification projectorID = new Peripheral3DProjector.Identification(id, side);
 
 			if (!tag.getBoolean(Turtle3DProjector.TAG_IS_MODEL_DECOMPILED)) {
+				// Read 3D model from NBT
 				byte[] buf = tag.getByteArray(Peripheral3DProjector.TAG_MODEL);
 
 				if (buf.length > 0) {
+					// Decompile 3D model
 					ModelProgramProcessor processor = new ModelProgramProcessor();
 					byte[] buf2 = processor.inflate(buf);
 
@@ -113,6 +115,7 @@ public class Turtle3DProjector implements ITurtleUpgrade {
 					} catch (LuaException e) {
 					}
 
+					// Queue 3D model to render
 					if (model != null) {
 						CC3DProjector.queue3DModel.put(projectorID, Pair.of(model, turtle));
 					}
@@ -120,15 +123,18 @@ public class Turtle3DProjector implements ITurtleUpgrade {
 					tag.setBoolean(TAG_IS_MODEL_DECOMPILED, true);
 				}
 			} else {
+				// if model is queued
 				Pair<List<Map<Integer, Object>>, ITurtleAccess>value = CC3DProjector.queue3DModel.get(projectorID);
 
-				if (value != null) {
+				if (value != null) { // and queued model is available
+					// Activate queued model
 					CC3DProjector.queue3DModel.put(projectorID, Pair.of(value.getKey(), turtle));
 				} else {
 					tag.setBoolean(TAG_IS_MODEL_DECOMPILED, false);
 				}
 			}
 
+			// Return upgrade model (ON)
 			if (side == TurtleSide.Left) {
 				return Pair.of(modelManager.getModel(modelLeftOn), null);
 			} else {
@@ -136,6 +142,7 @@ public class Turtle3DProjector implements ITurtleUpgrade {
 			}
 
 		} else {
+			// Return upgrade model (OFF)
 			if (side == TurtleSide.Left) {
 				return Pair.of(modelManager.getModel(modelLeftOff), null);
 			} else {
