@@ -4,7 +4,6 @@ for ComputerCraft 1.79 (Minecraft 1.8.9 with Forge)
 + **Download:** [[1.8.9]CC3DProjector-0.0.1.jar (from MediaFire)](http://www.mediafire.com/file/858qvuzj4uc966j/%5B1.8.9%5DCC3DProjector-0.0.1.jar)
 
 ## Recipe
-
 e = Eye of Ender, d = Diamond, # = Stone
 ```
 #d#
@@ -70,6 +69,8 @@ tVertex = { nX, nY, nZ }
 { "line", tVertex_1, tVertex_2 }
 { "line", tVertex_1, tVertex_2, tVertex_3, ... }  -- up to tVertex_255
 ```
+{ "line", tVertex_1, tVertex_2, tVertex_3, ... }  -- up to tVertex_255
+```
 * Same as GL_LINE_STRIP mode
 * { "line", v1, v2, v3 } will draw lines: v1 - v2 - v3
 
@@ -79,7 +80,7 @@ tVertex = { nX, nY, nZ }
 { "loop", tVertex_1, tVertex_2, tVertex_3, tVertex_4, ... }  -- up to tVertex_255
 ```
 * Same as GL_LINE_LOOP mode
-* { "line", v1, v2, v3 } will draw lines: v1 - v2 - v3 - **v1**
+* { "loop", v1, v2, v3 } will draw lines: v1 - v2 - v3 - **v1**
 
 #### Face
 ```Lua
