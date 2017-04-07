@@ -93,7 +93,7 @@ tVertex = { nX, nY, nZ }
 { "loop", tVertex_1, tVertex_2, tVertex_3, tVertex_4, ... }  -- up to tVertex_255
 ```
 * Same as GL_LINE_LOOP mode
-* { "line", v1, v2, v3 } will draw lines: v1 - v2 - v3 - **v1**
+* { "loop", v1, v2, v3 } will draw lines: v1 - v2 - v3 - **v1**
 
 #### Face
 ```Lua
