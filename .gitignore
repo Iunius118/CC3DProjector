@@ -1,0 +1,17 @@
+
+# Ignore all
+/*
+
+# Exclude source
+!/src/
+
+# Exclude docs
+!/docs/
+
+# Others
+!.gitignore
+!*.md
+!build.gradle
+!LICENSE.txt
+!README_*
+!update.json
