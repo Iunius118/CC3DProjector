@@ -1,8 +1,0 @@
-
-{
-    "parent": "cc3dprojector:upgrade/upgrade_base_top_left",
-    "textures": {
-        "top" : "cc3dprojector:upgrades/3dprojector_top_off",
-        "side": "cc3dprojector:upgrades/3dprojector_side"
-    }
-}

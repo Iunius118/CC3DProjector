@@ -1,7 +1,19 @@
 # CC3DProjector
-for ComputerCraft 1.79 (Minecraft 1.8.9 with Forge)
 
-+ **Download:** [[1.8.9]CC3DProjector-0.0.2.jar (from MediaFire)](http://www.mediafire.com/file/i9wdy9wrb54xl8w/%5B1.8.9%5DCC3DProjector-0.0.2.jar)
+CC3DProjector is a programmable rendering peripheral for ComputerCraft.
+Using this peripheral, players can render points, lines and quadrangles on the World.
+
+## Requirements
+
++ Minecraft
++ Minecraft Forge
++ ComputerCraft
+
+## Download
+
+### Old Version
+
++ [**CC 1.79 (MC 1.8.9)**](https://github.com/Iunius118/CC3DProjector/tree/0.0.2)
 
 ## Recipe
 
@@ -150,4 +162,4 @@ tVertex = { nX, nY, nZ }
 ```
 
 ___
-Copyright 2017 Iunius118
+Copyright 2018 Iunius118
