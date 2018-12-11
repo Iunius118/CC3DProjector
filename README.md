@@ -1,13 +1,13 @@
-# CC3DProjector
+# CC3DProjector [WIP]
 
 CC3DProjector is a programmable rendering peripheral for ComputerCraft.
 Using this peripheral, players can render points, lines and quadrangles on the World.
 
 ## Requirements
 
-+ Minecraft
-+ Minecraft Forge
-+ ComputerCraft
++ Minecraft 1.12.x
++ Minecraft Forge build 2387+
++ ComputerCraft 1.80pr1+ for Minecraft 1.12/1.12.2
 
 ## Download
 
