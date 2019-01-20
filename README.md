@@ -1,4 +1,4 @@
-# CC3DProjector [WIP]
+# CC3DProjector
 
 CC3DProjector is a programmable rendering peripheral for ComputerCraft.
 Using this peripheral, players can render points, lines and quadrangles on the World.
@@ -7,9 +7,11 @@ Using this peripheral, players can render points, lines and quadrangles on the W
 
 + Minecraft 1.12.x
 + Minecraft Forge build 2387+
-+ ComputerCraft 1.80pr1+ for Minecraft 1.12/1.12.2
++ ComputerCraft 1.80pr1 for Minecraft 1.12.x
 
 ## Download
+
++ [**Releases**](https://github.com/Iunius118/CC3DProjector/releases)
 
 ### Old Version
 
@@ -18,13 +20,15 @@ Using this peripheral, players can render points, lines and quadrangles on the W
 ## Recipe
 
 e = Eye of Ender, d = Diamond, # = Stone
-```
+
+```txt
 #d#
 #e#
 ###
 ```
 
 ## Lua sample code
+
 ```Lua
 local projector = peripheral.find( "3d_projector" )
 -- Model script
@@ -61,88 +65,110 @@ else
 end
 ```
 
-
 ## Script Reference
+
 ```Lua
 model = { tCommand1, tCommand2, tCommand3, ... }
 ```
+
 ### Color commands
+
 #### Color
+
 ```Lua
 { "color", nColor }
 ```
-* nColor ( 0 <= nColor <= 15 ): Same as 16 colors of Advanced Computers
+
++ nColor ( 0 <= nColor <= 15 ): Same as 16 colors of Advanced Computers
 
 #### Alpha
+
 ```Lua
 { "alpha", nAlpha }
 ```
-* nAlpha ( 0.0 <= nAlpha <= 1.0 ): Opacity
+
++ nAlpha ( 0.0 <= nAlpha <= 1.0 ): Opacity
 
 ### Drawing commands
+
 ```Lua
 tVertex = { nX, nY, nZ }
 ```
+
 #### Point
+
 ```Lua
 { "point", tVertex }
 { "point", tVertex_1, tVertex_2, ... }  -- up to tVertex_255
 ```
-* Same as GL_POINTS mode
-* { "point", v1, v2, v3 } will draw points at v1, v2 and v3
+
++ Same as GL_POINTS mode
++ { "point", v1, v2, v3 } will draw points at v1, v2 and v3
 
 #### Line
+
 ```Lua
 { "line", tVertex_1, tVertex_2 }
 { "line", tVertex_1, tVertex_2, tVertex_3, ... }  -- up to tVertex_255
 ```
-* Same as GL_LINE_STRIP mode
-* { "line", v1, v2, v3 } will draw lines: v1 - v2 - v3
+
++ Same as GL_LINE_STRIP mode
++ { "line", v1, v2, v3 } will draw lines: v1 - v2 - v3
 
 #### Loop
+
 ```Lua
 { "loop", tVertex_1, tVertex_2, tVertex_3 }
 { "loop", tVertex_1, tVertex_2, tVertex_3, tVertex_4, ... }  -- up to tVertex_255
 ```
-* Same as GL_LINE_LOOP mode
-* { "loop", v1, v2, v3 } will draw lines: v1 - v2 - v3 - **v1**
+
++ Same as GL_LINE_LOOP mode
++ { "loop", v1, v2, v3 } will draw lines: v1 - v2 - v3 - **v1**
 
 #### Face
+
 ```Lua
 { "face", tVertex_1, tVertex_2, tVertex_3, tVertex_4 }
 ```
-* Same as GL_QUADS mode, but each face command draws only one quadrilateral
+
++ Same as GL_QUADS mode, but each face command draws only one quadrilateral
 
 ### Transformation commands
-#### Translate
+
 ```Lua
 { "translate", { nX, nY, nZ } }
 ```
 
 #### Rotate
+
 ```Lua
 { "rotateX", nAngle }
 { "rotateY", nAngle }
 { "rotateZ", nAngle }
 ```
-* nAngle: Angle in degrees
+
++ nAngle: Angle in degrees
 
 #### Scale
+
 ```Lua
 { "scale", { nX, nY, nZ } }
 ```
 
 ### Oscillation command
+
 ```Lua
 { "oscillate", nType, nPhase, nPeriod }
 ```
-* nType ( 0 <= nType <= 3 ): Waveform type: 0 sawtooth, 1 sine, 2 square, 3 triangle
-* nPhase ( 0.0 <= nPhase < 1.0 ): Phase
-* nPeriod ( 0.0 < nPeriod ): Wave period in seconds
-* Generated amplitude is -1 to +1
-* This command works only with transformation command or alpha command
+
++ nType ( 0 <= nType <= 3 ): Waveform type: 0 sawtooth, 1 sine, 2 square, 3 triangle
++ nPhase ( 0.0 <= nPhase < 1.0 ): Phase
++ nPeriod ( 0.0 < nPeriod ): Wave period in seconds
++ Generated amplitude is -1 to +1
++ This command works only with transformation command or alpha command
 
 #### With Transformation command
+
 ```Lua
 { ... , { "oscillate", nType, nPhase, nPeriod }, { "translate", { nX, nY, nZ } }, ... }
 -- means { "translate", { nX * oscillate(), nY * oscillate(), nZ * oscillate() } }
@@ -155,6 +181,7 @@ tVertex = { nX, nY, nZ }
 ```
 
 #### With Alpha command
+
 ```Lua
 { ... , { "oscillate", nType, nPhase, nPeriod }, { "alpha", nAlpha }, ... }
 -- means { "alpha", nAlpha * oscillate() + nConstAlpha }
