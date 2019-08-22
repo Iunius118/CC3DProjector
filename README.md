@@ -5,17 +5,18 @@ Using this peripheral, players can render points, lines and quadrangles on the W
 
 ## Requirements
 
-+ Minecraft 1.12.x
-+ Minecraft Forge build 2387+
-+ ComputerCraft 1.80pr1 for Minecraft 1.12.x
++ Minecraft 1.12.2
++ Minecraft Forge 1.12.2-14.23.5.2768+
++ ComputerCraft 1.80pr1 for Minecraft 1.12.x / CC: Tweaked for Minecraft 1.12.2
 
 ## Download
 
-+ [**Releases**](https://github.com/Iunius118/CC3DProjector/releases)
++ [**v1.12.2-1.1.0.0**](https://github.com/Iunius118/CC3DProjector/releases/tag/v1.12.2-1.1.0.0)
 
 ### Old Version
 
-+ [**CC 1.79 (MC 1.8.9)**](https://github.com/Iunius118/CC3DProjector/tree/0.0.2)
++ [**CC 1.80pr1 (MC 1.12)**](https://github.com/Iunius118/CC3DProjector/releases/tag/v1.12-1.0.0.0)
++ [**CC 1.79 (MC 1.8.9)**](https://github.com/Iunius118/CC3DProjector/releases/tag/v0.0.2)
 
 ## Recipe
 
