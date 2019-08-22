@@ -1,4 +1,4 @@
-package iunius118.mods.cc3dprojector.peripheral;
+package net.github.iunius118.cc3dprojector.peripheral;
 
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
@@ -6,10 +6,10 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
-import iunius118.mods.cc3dprojector.CC3DProjector;
-import iunius118.mods.cc3dprojector.block.Block3DProjector;
-import iunius118.mods.cc3dprojector.tileentity.TileEntity3DProjector;
-import iunius118.mods.cc3dprojector.upgrade.Turtle3DProjector;
+import net.github.iunius118.cc3dprojector.CC3DProjector;
+import net.github.iunius118.cc3dprojector.block.ThreeDProjectorBlock;
+import net.github.iunius118.cc3dprojector.tileentity.ThreeDProjectorTileEntity;
+import net.github.iunius118.cc3dprojector.upgrade.ThreeDProjectorTurtle;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -20,25 +20,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Peripheral3DProjector implements IPeripheral {
+public class ThreeDProjectorPeripheral implements IPeripheral {
     public static final String TAG_MODEL = "model";
     public static final String TAG_IS_RAW = "isRaw";
 
     private final PeripheralType type;
-    private final TileEntity3DProjector tileentity;
+    private final ThreeDProjectorTileEntity tileentity;
     private final ITurtleAccess turtleAccess;
     private final TurtleSide turtleSide;
 
 
-    public Peripheral3DProjector(TileEntity3DProjector tile) {
-        type = PeripheralType.TILEENTITY;
+    public ThreeDProjectorPeripheral(ThreeDProjectorTileEntity tile) {
+        type = net.github.iunius118.cc3dprojector.peripheral.PeripheralType.TILEENTITY;
         tileentity = tile;
         turtleAccess = null;
         turtleSide = TurtleSide.Left;
     }
 
-    public Peripheral3DProjector(ITurtleAccess turtle, TurtleSide side) {
-        type = PeripheralType.UPGRADE;
+    public ThreeDProjectorPeripheral(ITurtleAccess turtle, TurtleSide side) {
+        type = net.github.iunius118.cc3dprojector.peripheral.PeripheralType.UPGRADE;
         tileentity = null;
         turtleAccess = turtle;
         turtleSide = side;
@@ -98,10 +98,10 @@ public class Peripheral3DProjector implements IPeripheral {
 
     @Override
     public boolean equals(IPeripheral other) {
-        if (other instanceof Peripheral3DProjector) {
-            Peripheral3DProjector old = (Peripheral3DProjector)other;
+        if (other instanceof ThreeDProjectorPeripheral) {
+            ThreeDProjectorPeripheral old = (ThreeDProjectorPeripheral)other;
 
-            if (type == PeripheralType.UPGRADE && this.turtleAccess != null && old.turtleAccess != null) {
+            if (type == net.github.iunius118.cc3dprojector.peripheral.PeripheralType.UPGRADE && this.turtleAccess != null && old.turtleAccess != null) {
                 BlockPos oldPos = old.turtleAccess.getPosition();
                 return this.turtleAccess.getPosition().equals(oldPos) && (this.turtleSide == old.turtleSide);
             } else {
@@ -118,24 +118,24 @@ public class Peripheral3DProjector implements IPeripheral {
     private void setModelProgram(byte[] buf, int computerID) {
         NBTTagCompound tag = null;
 
-        if (type == PeripheralType.TILEENTITY && tileentity != null) {
+        if (type == net.github.iunius118.cc3dprojector.peripheral.PeripheralType.TILEENTITY && tileentity != null) {
             tag = tileentity.getTileData();
-        } else if (type == PeripheralType.UPGRADE && turtleAccess != null) {
+        } else if (type == net.github.iunius118.cc3dprojector.peripheral.PeripheralType.UPGRADE && turtleAccess != null) {
             tag = turtleAccess.getUpgradeNBTData(turtleSide);
         }
 
         if (tag != null) {
             tag.setBoolean(TAG_IS_RAW, true);
 
-            if (type == PeripheralType.TILEENTITY) {
+            if (type == net.github.iunius118.cc3dprojector.peripheral.PeripheralType.TILEENTITY) {
                 IBlockState state = CC3DProjector.BLOCKS.block_3d_projector.getDefaultState();
-                tileentity.getWorld().setBlockState(tileentity.getPos(), state.withProperty(Block3DProjector.IS_ON, Boolean.FALSE));
-                tileentity.getWorld().setBlockState(tileentity.getPos(), state.withProperty(Block3DProjector.IS_ON, Boolean.TRUE));
+                tileentity.getWorld().setBlockState(tileentity.getPos(), state.withProperty(ThreeDProjectorBlock.IS_ON, Boolean.FALSE));
+                tileentity.getWorld().setBlockState(tileentity.getPos(), state.withProperty(ThreeDProjectorBlock.IS_ON, Boolean.TRUE));
                 tag.setByteArray(TAG_MODEL, buf);
             } else {    // type == PeripheralType.UPGRADE
                 tag.setByteArray(TAG_MODEL, buf);
-                tag.setBoolean(Turtle3DProjector.TAG_IS_ON, true);
-                tag.setInteger(Turtle3DProjector.TAG_COMPUTER_ID, computerID);
+                tag.setBoolean(ThreeDProjectorTurtle.TAG_IS_ON, true);
+                tag.setInteger(ThreeDProjectorTurtle.TAG_COMPUTER_ID, computerID);
                 turtleAccess.updateUpgradeNBTData(turtleSide);
             }
         }
@@ -148,16 +148,16 @@ public class Peripheral3DProjector implements IPeripheral {
         byte[] buf;
         NBTTagCompound tag = null;
 
-        if (type == PeripheralType.TILEENTITY && tileentity != null) {
+        if (type == net.github.iunius118.cc3dprojector.peripheral.PeripheralType.TILEENTITY && tileentity != null) {
             tag = tileentity.getTileData();
-        } else if (type == PeripheralType.UPGRADE && turtleAccess != null) {
+        } else if (type == net.github.iunius118.cc3dprojector.peripheral.PeripheralType.UPGRADE && turtleAccess != null) {
             tag = turtleAccess.getUpgradeNBTData(turtleSide);
         }
 
         if (tag != null) {
             buf = tag.getByteArray(TAG_MODEL);
             if (buf.length > 0) {
-                boolean isRaw = tag.getBoolean(Peripheral3DProjector.TAG_IS_RAW);
+                boolean isRaw = tag.getBoolean(ThreeDProjectorPeripheral.TAG_IS_RAW);
 
                 if (!isRaw) {
                     buf = ModelProgramProcessor.inflate(buf);
@@ -176,20 +176,20 @@ public class Peripheral3DProjector implements IPeripheral {
     private void clearModelProgram() {
         NBTTagCompound tag = null;
 
-        if (type == PeripheralType.TILEENTITY && tileentity != null) {
+        if (type == net.github.iunius118.cc3dprojector.peripheral.PeripheralType.TILEENTITY && tileentity != null) {
             tag = tileentity.getTileData();
-        } else if (type == PeripheralType.UPGRADE && turtleAccess != null) {
+        } else if (type == net.github.iunius118.cc3dprojector.peripheral.PeripheralType.UPGRADE && turtleAccess != null) {
             tag = turtleAccess.getUpgradeNBTData(turtleSide);
         }
 
         if (tag != null) {
             tag.removeTag(TAG_MODEL);
 
-            if (type == PeripheralType.TILEENTITY) {
+            if (type == net.github.iunius118.cc3dprojector.peripheral.PeripheralType.TILEENTITY) {
                 IBlockState state = CC3DProjector.BLOCKS.block_3d_projector.getDefaultState();
-                tileentity.getWorld().setBlockState(tileentity.getPos(), state.withProperty(Block3DProjector.IS_ON, Boolean.FALSE));
+                tileentity.getWorld().setBlockState(tileentity.getPos(), state.withProperty(ThreeDProjectorBlock.IS_ON, Boolean.FALSE));
             } else {    // type == PeripheralType.UPGRADE
-                tag.setBoolean(Turtle3DProjector.TAG_IS_ON, false);
+                tag.setBoolean(ThreeDProjectorTurtle.TAG_IS_ON, false);
                 turtleAccess.updateUpgradeNBTData(turtleSide);
             }
         }
@@ -201,15 +201,15 @@ public class Peripheral3DProjector implements IPeripheral {
         private final int id;
         private final TurtleSide turtleSide;
 
-        public Identification(TileEntity3DProjector tile) {
-            type = PeripheralType.TILEENTITY;
+        public Identification(ThreeDProjectorTileEntity tile) {
+            type = net.github.iunius118.cc3dprojector.peripheral.PeripheralType.TILEENTITY;
             pos = tile.getPos();
             id = -1;
             turtleSide = null;
         }
 
         public Identification(int computerID, TurtleSide side) {
-            type = PeripheralType.UPGRADE;
+            type = net.github.iunius118.cc3dprojector.peripheral.PeripheralType.UPGRADE;
             pos = null;
             id = computerID;
             turtleSide = side;
@@ -250,9 +250,9 @@ public class Peripheral3DProjector implements IPeripheral {
                 return false;
             }
 
-            if (type == PeripheralType.TILEENTITY) {
+            if (type == net.github.iunius118.cc3dprojector.peripheral.PeripheralType.TILEENTITY) {
                 return pos != null && pos.equals(other.pos);
-            } else if (type == PeripheralType.UPGRADE) {
+            } else if (type == net.github.iunius118.cc3dprojector.peripheral.PeripheralType.UPGRADE) {
                 return id > -1 && id == other.id && turtleSide != null && turtleSide == other.turtleSide;
             }
 

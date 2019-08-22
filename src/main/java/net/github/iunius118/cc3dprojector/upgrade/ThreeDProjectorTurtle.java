@@ -1,11 +1,11 @@
-package iunius118.mods.cc3dprojector.upgrade;
+package net.github.iunius118.cc3dprojector.upgrade;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
-import iunius118.mods.cc3dprojector.CC3DProjector;
-import iunius118.mods.cc3dprojector.peripheral.ModelProgramProcessor;
-import iunius118.mods.cc3dprojector.peripheral.Peripheral3DProjector;
+import net.github.iunius118.cc3dprojector.CC3DProjector;
+import net.github.iunius118.cc3dprojector.peripheral.ModelProgramProcessor;
+import net.github.iunius118.cc3dprojector.peripheral.ThreeDProjectorPeripheral;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelManager;
@@ -25,7 +25,7 @@ import javax.vecmath.Matrix4f;
 import java.util.List;
 import java.util.Map;
 
-public class Turtle3DProjector implements ITurtleUpgrade {
+public class ThreeDProjectorTurtle implements ITurtleUpgrade {
     public static final String TAG_COMPUTER_ID = "ID";
     public static final String TAG_IS_ON = "isOn";
     public static final String TAG_IS_MODEL_DECOMPILED = "isDec";
@@ -39,7 +39,7 @@ public class Turtle3DProjector implements ITurtleUpgrade {
     @SideOnly(Side.CLIENT)
     private ModelResourceLocation modelRightOn;
 
-    public Turtle3DProjector() {
+    public ThreeDProjectorTurtle() {
         if (FMLCommonHandler.instance().getSide().isClient()) {
             modelLeftOff  = new ModelResourceLocation(new ResourceLocation(CC3DProjector.MOD_ID, "upgrade/3dprojector_left_off"), "inventory");
             modelLeftOn  = new ModelResourceLocation(new ResourceLocation(CC3DProjector.MOD_ID, "upgrade/3dprojector_left_on"), "inventory");
@@ -80,7 +80,7 @@ public class Turtle3DProjector implements ITurtleUpgrade {
     @Override
     @Nullable
     public IPeripheral createPeripheral(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side) {
-        return new Peripheral3DProjector(turtle, side);
+        return new ThreeDProjectorPeripheral(turtle, side);
     }
 
     @Override
@@ -97,15 +97,15 @@ public class Turtle3DProjector implements ITurtleUpgrade {
         ModelManager modelManager = mc.getRenderItem().getItemModelMesher().getModelManager();
         NBTTagCompound tag = (turtle != null) ? turtle.getUpgradeNBTData(side) : null;
 
-        if (tag != null && tag.getBoolean(Turtle3DProjector.TAG_IS_ON)) {
+        if (tag != null && tag.getBoolean(ThreeDProjectorTurtle.TAG_IS_ON)) {
             List<Map<Integer, Object>> model = null;
             int id = tag.getInteger(TAG_COMPUTER_ID);
-            Peripheral3DProjector.Identification projectorID = new Peripheral3DProjector.Identification(id, side);
+            ThreeDProjectorPeripheral.Identification projectorID = new ThreeDProjectorPeripheral.Identification(id, side);
 
-            if (!tag.getBoolean(Turtle3DProjector.TAG_IS_MODEL_DECOMPILED)) {
+            if (!tag.getBoolean(ThreeDProjectorTurtle.TAG_IS_MODEL_DECOMPILED)) {
                 // Read 3D model from NBT
-                boolean isRaw = tag.getBoolean(Peripheral3DProjector.TAG_IS_RAW);
-                byte[] buf = tag.getByteArray(Peripheral3DProjector.TAG_MODEL);
+                boolean isRaw = tag.getBoolean(ThreeDProjectorPeripheral.TAG_IS_RAW);
+                byte[] buf = tag.getByteArray(ThreeDProjectorPeripheral.TAG_MODEL);
 
                 if (buf.length > 0) {
                     // Decompile 3D model

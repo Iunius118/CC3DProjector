@@ -1,7 +1,6 @@
-package iunius118.mods.cc3dprojector.peripheral;
+package net.github.iunius118.cc3dprojector.peripheral;
 
 import dan200.computercraft.api.lua.LuaException;
-import iunius118.mods.cc3dprojector.CC3DProjector;
 import net.minecraft.util.math.Vec3i;
 
 import java.io.ByteArrayOutputStream;

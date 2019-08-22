@@ -1,8 +1,8 @@
-package iunius118.mods.cc3dprojector.tileentity;
+package net.github.iunius118.cc3dprojector.tileentity;
 
 import dan200.computercraft.api.lua.LuaException;
-import iunius118.mods.cc3dprojector.peripheral.ModelProgramProcessor;
-import iunius118.mods.cc3dprojector.peripheral.Peripheral3DProjector;
+import net.github.iunius118.cc3dprojector.peripheral.ModelProgramProcessor;
+import net.github.iunius118.cc3dprojector.peripheral.ThreeDProjectorPeripheral;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -16,11 +16,11 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 
-public class TileEntity3DProjector extends TileEntity implements ITickable {
+public class ThreeDProjectorTileEntity extends TileEntity implements ITickable {
     public List<Map<Integer, Object>> model = null;    // Model cache
 
-    public Peripheral3DProjector getPeripheral() {
-        return new Peripheral3DProjector(this);
+    public ThreeDProjectorPeripheral getPeripheral() {
+        return new ThreeDProjectorPeripheral(this);
     }
 
     @Override
@@ -29,8 +29,8 @@ public class TileEntity3DProjector extends TileEntity implements ITickable {
 
         // Read model from NBT
         NBTTagCompound tag = this.getTileData();
-        boolean isRaw = tag.getBoolean(Peripheral3DProjector.TAG_IS_RAW);
-        byte[] buf = tag.getByteArray(Peripheral3DProjector.TAG_MODEL);
+        boolean isRaw = tag.getBoolean(ThreeDProjectorPeripheral.TAG_IS_RAW);
+        byte[] buf = tag.getByteArray(ThreeDProjectorPeripheral.TAG_MODEL);
 
         if (buf.length > 0) {
             // Decompile and Cache model

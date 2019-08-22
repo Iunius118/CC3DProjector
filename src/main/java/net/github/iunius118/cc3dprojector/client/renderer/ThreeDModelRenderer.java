@@ -1,6 +1,6 @@
-package iunius118.mods.cc3dprojector.client.renderer;
+package net.github.iunius118.cc3dprojector.client.renderer;
 
-import iunius118.mods.cc3dprojector.peripheral.ModelProgramProcessor;
+import net.github.iunius118.cc3dprojector.peripheral.ModelProgramProcessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -14,7 +14,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.List;
 import java.util.Map;
 
-public class Renderer3DModel {
+public class ThreeDModelRenderer {
 
     public static void doRender(RenderWorldLastEvent event, Vec3d pos, float yaw, List<Map<Integer, Object>> model, boolean isTurtle) {
         Object obj;

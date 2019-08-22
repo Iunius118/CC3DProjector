@@ -1,6 +1,6 @@
-package iunius118.mods.cc3dprojector.block;
+package net.github.iunius118.cc3dprojector.block;
 
-import iunius118.mods.cc3dprojector.tileentity.TileEntity3DProjector;
+import net.github.iunius118.cc3dprojector.tileentity.ThreeDProjectorTileEntity;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -15,10 +15,10 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class Block3DProjector extends BlockContainer {
+public class ThreeDProjectorBlock extends BlockContainer {
     public static final PropertyBool IS_ON = PropertyBool.create("ison");
 
-    public Block3DProjector() {
+    public ThreeDProjectorBlock() {
         super(Material.GROUND);
         this.setSoundType(SoundType.STONE);
         this.setCreativeTab(CreativeTabs.DECORATIONS);
@@ -71,6 +71,6 @@ public class Block3DProjector extends BlockContainer {
     @Nullable
     @Override
     public TileEntity createNewTileEntity(@Nullable World worldIn, int meta) {
-        return new TileEntity3DProjector();
+        return new ThreeDProjectorTileEntity();
     }
 }

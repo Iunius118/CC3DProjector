@@ -1,15 +1,15 @@
-package iunius118.mods.cc3dprojector;
+package net.github.iunius118.cc3dprojector;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import iunius118.mods.cc3dprojector.block.Block3DProjector;
-import iunius118.mods.cc3dprojector.client.renderer.Renderer3DModel;
-import iunius118.mods.cc3dprojector.client.renderer.RendererTileEntity3DProjector;
-import iunius118.mods.cc3dprojector.peripheral.Peripheral3DProjector;
-import iunius118.mods.cc3dprojector.peripheral.PeripheralProvider;
-import iunius118.mods.cc3dprojector.peripheral.PeripheralType;
-import iunius118.mods.cc3dprojector.tileentity.TileEntity3DProjector;
-import iunius118.mods.cc3dprojector.upgrade.Turtle3DProjector;
+import net.github.iunius118.cc3dprojector.block.ThreeDProjectorBlock;
+import net.github.iunius118.cc3dprojector.client.renderer.ThreeDModelRenderer;
+import net.github.iunius118.cc3dprojector.client.renderer.ThreeDProjectorTileEntityRenderer;
+import net.github.iunius118.cc3dprojector.peripheral.ThreeDProjectorPeripheral;
+import net.github.iunius118.cc3dprojector.peripheral.PeripheralProvider;
+import net.github.iunius118.cc3dprojector.peripheral.PeripheralType;
+import net.github.iunius118.cc3dprojector.tileentity.ThreeDProjectorTileEntity;
+import net.github.iunius118.cc3dprojector.upgrade.ThreeDProjectorTurtle;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -70,10 +70,9 @@ public class CC3DProjector {
 
     public static final String NAME_BLOCK_3D_PROJECTOR = "3dprojector";
 
-    public static final Turtle3DProjector turtle3DProjector = new Turtle3DProjector();
+    public static final ThreeDProjectorTurtle THREE_D_PROJECTOR_TURTLE = new ThreeDProjectorTurtle();
 
-    @SideOnly(Side.CLIENT)
-    public static Map<Peripheral3DProjector.Identification, Pair<List<Map<Integer, Object>>, ITurtleAccess>> queue3DModel = new HashMap<>();
+    public static Map<ThreeDProjectorPeripheral.Identification, Pair<List<Map<Integer, Object>>, ITurtleAccess>> queue3DModel;
 
     @ObjectHolder(MOD_ID)
     public static class BLOCKS
@@ -91,10 +90,10 @@ public class CC3DProjector {
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry().registerAll(
-                new Block3DProjector().setRegistryName(NAME_BLOCK_3D_PROJECTOR).setTranslationKey(MOD_ID + "." + NAME_BLOCK_3D_PROJECTOR)
+                new ThreeDProjectorBlock().setRegistryName(NAME_BLOCK_3D_PROJECTOR).setTranslationKey(MOD_ID + "." + NAME_BLOCK_3D_PROJECTOR)
         );
 
-        GameRegistry.registerTileEntity(TileEntity3DProjector.class, MOD_ID + ":" + NAME_BLOCK_3D_PROJECTOR);
+        GameRegistry.registerTileEntity(ThreeDProjectorTileEntity.class, MOD_ID + ":" + NAME_BLOCK_3D_PROJECTOR);
     }
 
     @SubscribeEvent
@@ -111,7 +110,7 @@ public class CC3DProjector {
 
         public void registerPeripherals() {
             ComputerCraftAPI.registerPeripheralProvider(new PeripheralProvider());
-            ComputerCraftAPI.registerTurtleUpgrade(turtle3DProjector);
+            ComputerCraftAPI.registerTurtleUpgrade(THREE_D_PROJECTOR_TURTLE);
         }
     }
 
@@ -126,8 +125,9 @@ public class CC3DProjector {
         public void preInit(FMLPreInitializationEvent event) {
             super.preInit(event);
 
+            queue3DModel = new HashMap<>();
             MinecraftForge.EVENT_BUS.register(this);
-            ClientRegistry.bindTileEntitySpecialRenderer(TileEntity3DProjector.class, new RendererTileEntity3DProjector());
+            ClientRegistry.bindTileEntitySpecialRenderer(ThreeDProjectorTileEntity.class, new ThreeDProjectorTileEntityRenderer());
         }
 
         @SubscribeEvent
@@ -182,11 +182,11 @@ public class CC3DProjector {
             double playerY = player.prevPosY + (player.posY - player.prevPosY) * partialTicks;
             double playerZ = player.prevPosZ + (player.posZ - player.prevPosZ) * partialTicks;
 
-            Map<Peripheral3DProjector.Identification, Pair<List<Map<Integer, Object>>, ITurtleAccess>> queue3DModelCopy = new HashMap<>();	 // Model cache for Turtle Upgrades
+            Map<ThreeDProjectorPeripheral.Identification, Pair<List<Map<Integer, Object>>, ITurtleAccess>> queue3DModelCopy = new HashMap<>();	 // Model cache for Turtle Upgrades
 
             // Render models from queue
-            for(Map.Entry<Peripheral3DProjector.Identification, Pair<List<Map<Integer, Object>>, ITurtleAccess>> entry : queue3DModel.entrySet()) {
-                Peripheral3DProjector.Identification id = entry.getKey();
+            for(Map.Entry<ThreeDProjectorPeripheral.Identification, Pair<List<Map<Integer, Object>>, ITurtleAccess>> entry : queue3DModel.entrySet()) {
+                ThreeDProjectorPeripheral.Identification id = entry.getKey();
                 ITurtleAccess turtle = entry.getValue().getValue();
 
                 if (id.getType()== PeripheralType.UPGRADE && turtle == null) {
@@ -207,7 +207,7 @@ public class CC3DProjector {
                     yaw = turtle.getVisualYaw(partialTicks);
                 }
 
-                Renderer3DModel.doRender(event, pos, yaw, model, turtle != null);	// Render model
+                ThreeDModelRenderer.doRender(event, pos, yaw, model, turtle != null);	// Render model
 
                 if (id.getType() == PeripheralType.UPGRADE) {	// Remain models of active Turtle Upgrades
                     queue3DModelCopy.put(id, Pair.of(model, null));

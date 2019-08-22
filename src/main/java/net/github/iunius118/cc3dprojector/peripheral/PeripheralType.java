@@ -1,4 +1,4 @@
-package iunius118.mods.cc3dprojector.peripheral;
+package net.github.iunius118.cc3dprojector.peripheral;
 
 public enum PeripheralType {
     TILEENTITY,
