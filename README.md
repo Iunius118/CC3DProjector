@@ -190,4 +190,4 @@ tVertex = { nX, nY, nZ }
 ```
 
 ___
-Copyright 2017-2018 Iunius118
+Copyright 2017-2019 Iunius118
