@@ -12,6 +12,6 @@
 !.gitignore
 !*.md
 !build.gradle
-!LICENSE.txt
+!LICENSE
 !README_*
 !update.json
