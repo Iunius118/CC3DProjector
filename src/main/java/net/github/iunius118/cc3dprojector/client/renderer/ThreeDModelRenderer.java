@@ -28,7 +28,7 @@ public class ThreeDModelRenderer {
         GlStateManager.pushMatrix();
         GlStateManager.disableLighting();
         GlStateManager.disableTexture2D();
-        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         GlStateManager.enableBlend();
         GL11.glLineWidth(1.0F);
         GL11.glPointSize(1.0F);
@@ -245,7 +245,8 @@ public class ThreeDModelRenderer {
         }
 
         GlStateManager.enableTexture2D();
-        // GlStateManager.enableLighting();
+        GlStateManager.enableLighting();
+        GlStateManager.disableBlend();
         GlStateManager.popMatrix();
     }
 
