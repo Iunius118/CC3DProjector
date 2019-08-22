@@ -91,7 +91,7 @@ public class CC3DProjector {
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry().registerAll(
-                new Block3DProjector().setRegistryName(NAME_BLOCK_3D_PROJECTOR).setUnlocalizedName(MOD_ID + "." + NAME_BLOCK_3D_PROJECTOR)
+                new Block3DProjector().setRegistryName(NAME_BLOCK_3D_PROJECTOR).setTranslationKey(MOD_ID + "." + NAME_BLOCK_3D_PROJECTOR)
         );
 
         GameRegistry.registerTileEntity(TileEntity3DProjector.class, MOD_ID + ":" + NAME_BLOCK_3D_PROJECTOR);
