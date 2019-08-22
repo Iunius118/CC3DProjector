@@ -57,7 +57,7 @@ import java.util.Map;
 public class CC3DProjector {
     public static final String MOD_ID = "cc3dprojector";
     public static final String MOD_NAME = "CC3DProjector";
-    public static final String MOD_VERSION = "1.12-1.0.0.0";
+    public static final String MOD_VERSION = "1.12.2-1.1.0.0";
     public static final String MOD_DEPENDENCIES = "required-after:computercraft";
 
     public static Logger logger;
