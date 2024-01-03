@@ -21,8 +21,8 @@ idea {
     }
 }
 
-version = "1.12.2-1.1.0.0"
-group = "com.github.iunius118.cc3dprojector" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+version = mod_version
+group = "com.github.iunius118.cc3dprojector"
 archivesBaseName = "CC3DProjector"
 
 // Need this here so eclipse task generates correctly.
@@ -75,7 +75,7 @@ dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
+    minecraft "net.minecraftforge:forge:${forge_version}"
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
@@ -97,6 +97,25 @@ dependencies {
 
     // Download ComputerCraft 1.80 pr1 from CurseForge
     implementation fg.deobf("curse.maven:computercraft-67504:2478952")
+}
+
+processResources {
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", mod_version
+    inputs.property "mcversion", mc_version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+
+        // replace version and mcversion
+        expand 'version': mod_version, 'mcversion': mc_version
+    }
+
+    // copy everything else except the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
