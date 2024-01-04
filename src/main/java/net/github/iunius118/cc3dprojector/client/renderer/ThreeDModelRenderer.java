@@ -140,8 +140,8 @@ public class ThreeDModelRenderer {
                     worldRenderer.begin(GL11.GL_POINTS, DefaultVertexFormats.POSITION);
 
                     for (int i = 1; i < statement.size(); i++) {
-                        Map p = (Map) statement.get(i + 1);
-                        worldRenderer.pos((double)(Float) p.get(1), (double)(Float) p.get(2), (double)(Float) p.get(3)).endVertex();
+                        Map<Integer, Float> p = (Map<Integer, Float>) statement.get(i + 1);
+                        worldRenderer.pos(p.get(1), p.get(2), p.get(3)).endVertex();
                     }
 
                     tessellator.draw();
@@ -150,8 +150,8 @@ public class ThreeDModelRenderer {
                     worldRenderer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
 
                     for (int i = 1; i < statement.size(); i++) {
-                        Map p = (Map) statement.get(i + 1);
-                        worldRenderer.pos((double)(Float) p.get(1), (double)(Float) p.get(2), (double)(Float) p.get(3)).endVertex();
+                        Map<Integer, Float> p = (Map<Integer, Float>) statement.get(i + 1);
+                        worldRenderer.pos(p.get(1), p.get(2), p.get(3)).endVertex();
                     }
 
                     tessellator.draw();
@@ -160,33 +160,33 @@ public class ThreeDModelRenderer {
                     worldRenderer.begin(GL11.GL_LINE_LOOP, DefaultVertexFormats.POSITION);
 
                     for (int i = 1; i < statement.size(); i++) {
-                        Map p = (Map) statement.get(i + 1);
-                        worldRenderer.pos((double)(Float) p.get(1), (double)(Float) p.get(2), (double)(Float) p.get(3)).endVertex();
+                        Map<Integer, Float> p = (Map<Integer, Float>) statement.get(i + 1);
+                        worldRenderer.pos(p.get(1), p.get(2), p.get(3)).endVertex();
                     }
 
                     tessellator.draw();
 
                 } else if (command.equals(ModelProgramProcessor.NAME_FACE) && statement.size() == ModelProgramProcessor.SIZE_FACE) {
                     Map<Integer, Float> p1 = (Map<Integer, Float>) statement.get(2);
-                    Map p2 = (Map) statement.get(3);
-                    Map p3 = (Map) statement.get(4);
-                    Map p4 = (Map) statement.get(5);
+                    Map<Integer, Float> p2 = (Map<Integer, Float>) statement.get(3);
+                    Map<Integer, Float> p3 = (Map<Integer, Float>) statement.get(4);
+                    Map<Integer, Float> p4 = (Map<Integer, Float>) statement.get(5);
 
                     worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
-                    worldRenderer.pos((double)(Float) p1.get(1), (double)(Float) p1.get(2), (double)(Float) p1.get(3)).endVertex();
-                    worldRenderer.pos((double)(Float) p2.get(1), (double)(Float) p2.get(2), (double)(Float) p2.get(3)).endVertex();
-                    worldRenderer.pos((double)(Float) p3.get(1), (double)(Float) p3.get(2), (double)(Float) p3.get(3)).endVertex();
-                    worldRenderer.pos((double)(Float) p4.get(1), (double)(Float) p4.get(2), (double)(Float) p4.get(3)).endVertex();
+                    worldRenderer.pos(p1.get(1), p1.get(2), p1.get(3)).endVertex();
+                    worldRenderer.pos(p2.get(1), p2.get(2), p2.get(3)).endVertex();
+                    worldRenderer.pos(p3.get(1), p3.get(2), p3.get(3)).endVertex();
+                    worldRenderer.pos(p4.get(1), p4.get(2), p4.get(3)).endVertex();
                     tessellator.draw();
 
                 } else if (command.equals(ModelProgramProcessor.NAME_TRANSLATE) && statement.size() == ModelProgramProcessor.SIZE_TRANSLATE) {
-                    Map p = (Map) statement.get(2);
-                    double x = (double)(Float) p.get(1);
-                    double y = (double)(Float) p.get(2);
-                    double z = (double)(Float) p.get(3);
+                    Map<Integer, Float> p = (Map<Integer, Float>) statement.get(2);
+                    double x = p.get(1);
+                    double y = p.get(2);
+                    double z = p.get(3);
 
                     if (isOscillating) {
-                        double d = (double) oscillator.oscillate();
+                        double d = oscillator.oscillate();
                         x *= d;
                         y *= d;
                         z *= d;
@@ -232,7 +232,7 @@ public class ThreeDModelRenderer {
                     double z = p.get(3);
 
                     if (isOscillating) {
-                        double d = (double) oscillator.oscillate();
+                        double d = oscillator.oscillate();
                         x *= d;
                         y *= d;
                         z *= d;
@@ -313,7 +313,7 @@ public class ThreeDModelRenderer {
                     break;
 
                 case 1:	// sin
-                    ret = (float)Math.sin((time % _period) * 2.0f * (float)Math.PI / _period);
+                    ret = (float) Math.sin((time % _period) * 2.0f * (float) Math.PI / _period);
                     break;
 
                 case 2:	// square
