@@ -226,10 +226,10 @@ public class ThreeDModelRenderer {
                     GlStateManager.rotate(f, 0.0f, 0.0f, 1.0f);
 
                 } else if (command.equals(ModelProgramProcessor.NAME_SCALE) && statement.size() == ModelProgramProcessor.SIZE_SCALE) {
-                    Map p = (Map) statement.get(2);
-                    double x = (double) p.get(1);
-                    double y = (double) p.get(2);
-                    double z = (double) p.get(3);
+                    Map<Integer, Float> p = (Map<Integer, Float>) statement.get(2);
+                    double x = p.get(1);
+                    double y = p.get(2);
+                    double z = p.get(3);
 
                     if (isOscillating) {
                         double d = (double) oscillator.oscillate();
