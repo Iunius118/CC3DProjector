@@ -6,23 +6,18 @@ Using this peripheral, players can render points, lines and quadrangles on the W
 ## Requirements
 
 + Minecraft 1.12.2
-+ Minecraft Forge 1.12.2-14.23.5.2768+
-+ ComputerCraft 1.80pr1 for Minecraft 1.12.x / CC: Tweaked for Minecraft 1.12.2
++ Minecraft Forge 1.12.2-14.23.5.2859+
++ ComputerCraft 1.80pr1/CC: Tweaked for 1.12.2
 
 ## Download
 
-+ [**v1.12.2-1.1.0.0**](https://github.com/Iunius118/CC3DProjector/releases/tag/v1.12.2-1.1.0.0)
-
-### Old Version
-
-+ [**CC 1.80pr1 (MC 1.12)**](https://github.com/Iunius118/CC3DProjector/releases/tag/v1.12-1.0.0.0)
-+ [**CC 1.79 (MC 1.8.9)**](https://github.com/Iunius118/CC3DProjector/releases/tag/v0.0.2)
++ [v1.12.2-1.1.0.1](https://github.com/Iunius118/CC3DProjector/releases/tag/v1.12.2-1.1.0.1)
 
 ## Recipe
 
 e = Eye of Ender, d = Diamond, # = Stone
 
-```txt
+```text
 #d#
 #e#
 ###
@@ -189,5 +184,9 @@ tVertex = { nX, nY, nZ }
 -- nConstAlpha: Alpha value set by Alpha command without Oscillation command
 ```
 
-___
-Copyright 2017-2019 Iunius118
+## License
+
+- MIT License
+
+----
+Copyright © 2017 Iunius118

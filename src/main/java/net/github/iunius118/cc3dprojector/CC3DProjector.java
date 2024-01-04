@@ -5,9 +5,9 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import net.github.iunius118.cc3dprojector.block.ThreeDProjectorBlock;
 import net.github.iunius118.cc3dprojector.client.renderer.ThreeDModelRenderer;
 import net.github.iunius118.cc3dprojector.client.renderer.ThreeDProjectorTileEntityRenderer;
-import net.github.iunius118.cc3dprojector.peripheral.ThreeDProjectorPeripheral;
 import net.github.iunius118.cc3dprojector.peripheral.PeripheralProvider;
 import net.github.iunius118.cc3dprojector.peripheral.PeripheralType;
+import net.github.iunius118.cc3dprojector.peripheral.ThreeDProjectorPeripheral;
 import net.github.iunius118.cc3dprojector.tileentity.ThreeDProjectorTileEntity;
 import net.github.iunius118.cc3dprojector.upgrade.ThreeDProjectorTurtle;
 import net.minecraft.block.Block;
@@ -57,7 +57,7 @@ import java.util.Map;
 public class CC3DProjector {
     public static final String MOD_ID = "cc3dprojector";
     public static final String MOD_NAME = "CC3DProjector";
-    public static final String MOD_VERSION = "1.12.2-1.1.0.0";
+    public static final String MOD_VERSION = "1.12.2-1.1.0.1";
     public static final String MOD_DEPENDENCIES = "required-after:computercraft";
 
     public static Logger logger;
